@@ -90,10 +90,7 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-4xl mx-auto">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white/70 backdrop-blur mb-8 text-sm text-slate-700">
-              <Sparkles className="w-4 h-4 text-emerald-600" aria-hidden="true" />
-              <span>Assistant IA pour annonces Vinted</span>
-            </div>
+          
 
             {/* Main title */}
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 tracking-tight leading-[1.1]">
