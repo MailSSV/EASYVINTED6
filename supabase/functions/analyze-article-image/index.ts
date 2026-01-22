@@ -9,7 +9,7 @@ const corsHeaders = {
 };
 
 const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-const FUNCTION_VERSION = "3.0.0-NO-MAIN-CATEGORY";
+const FUNCTION_VERSION = "3.1.0-GEMINI-2.5-FLASH";
 
 interface AnalysisResult {
   title: string;
@@ -237,7 +237,7 @@ Ces informations du vendeur sont a prendre en compte pour l'analyse !
       console.log("🤖 Calling Gemini API...");
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: {
           parts
         },

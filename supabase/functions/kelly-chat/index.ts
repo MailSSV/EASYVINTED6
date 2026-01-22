@@ -131,7 +131,7 @@ Reponds UNIQUEMENT a la question posee. Ne propose pas d'analyse complete si on 
       const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3-pro-preview',
+        model: 'gemini-2.5-flash',
         contents: {
           parts: [{ text: prompt }]
         }

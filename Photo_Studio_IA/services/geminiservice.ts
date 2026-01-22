@@ -15,11 +15,11 @@ const getAI = () => {
 };
 
 /**
- * Analyzes the product image using gemini-3-pro-preview to generate e-commerce details.
+ * Analyzes the product image using gemini-2.5-flash to generate e-commerce details.
  * Returns an array of detected products.
  */
 export const analyzeProductImage = async (base64Image: string, mimeType: string): Promise<ProductData[]> => {
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-2.5-flash';
   
   const prompt = `
     You are an expert e-commerce copywriter and social media strategist. 

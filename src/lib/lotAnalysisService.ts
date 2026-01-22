@@ -31,7 +31,7 @@ export const generateLotTitleAndDescription = async (
     throw new Error("Un lot doit contenir au moins 2 articles");
   }
 
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-2.5-flash';
 
   const articlesData = articles.map((article, index) => `
 Article ${index + 1}:

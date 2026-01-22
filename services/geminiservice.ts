@@ -8,7 +8,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  * Analyzes the product image to generate Vinted-ready details.
  */
 export const analyzeProductImage = async (base64Image: string, mimeType: string): Promise<Partial<Article>> => {
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-2.5-flash';
   
   const prompt = `
     You are an expert Vinted seller assistant. Analyze this product image to create a high-converting listing.
@@ -111,7 +111,7 @@ export const editProductImage = async (
  * Provides coaching advice for a listing.
  */
 export const getListingCoachAdvice = async (article: Partial<Article>, base64Image?: string): Promise<string> => {
-  const model = 'gemini-3-pro-preview';
+  const model = 'gemini-2.5-flash';
 
   const context = `
     Listing Data:

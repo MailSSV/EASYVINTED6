@@ -41,7 +41,7 @@ export const analyzeProductImage = async (
   mimeType: string,
   writingStyle?: string
 ): Promise<ProductData[]> => {
-  const model = "gemini-3-pro-preview";
+  const model = "gemini-2.5-flash";
 
   const writingStyleInstruction = writingStyle
     ? `\n    WRITING STYLE: When generating the title and description, use this specific writing style:\n    ${writingStyle}\n    `
@@ -321,7 +321,7 @@ export const getListingCoachAdvice = async (
   article: any,
   activePhoto?: string
 ): Promise<string> => {
-  const model = "gemini-3-pro-preview";
+  const model = "gemini-2.5-flash";
 
   const photoPrompt = activePhoto ? "\n\nPhoto attached for visual analysis." : "";
 
@@ -400,7 +400,7 @@ export const getStructuredCoachAdvice = async (
   article: any,
   activePhoto?: string
 ): Promise<CoachAdvice> => {
-  const model = "gemini-3-pro-preview";
+  const model = "gemini-2.5-flash";
 
   const photoPrompt = activePhoto ? "\n\nPhoto attached for visual analysis." : "";
 
@@ -556,7 +556,7 @@ export const analyzeDefects = async (
   base64Image: string,
   mimeType: string
 ): Promise<DefectAnalysis> => {
-  const model = "gemini-3-pro-preview";
+  const model = "gemini-2.5-flash";
 
   const prompt = `Tu es un expert en inspection de vetements d'occasion pour la revente sur Vinted.
 Analyse cette photo de vetement et detecte TOUS les defauts visibles avec precision.
@@ -731,7 +731,7 @@ export const optimizeArticleSEO = async (article: any): Promise<{
   hashtags: string[];
   search_terms: string[];
 }> => {
-  const model = "gemini-3-pro-preview";
+  const model = "gemini-2.5-flash";
 
   const prompt = `Tu es un expert SEO pour Vinted. Optimise le référencement de cet article pour maximiser sa visibilité.
 
@@ -812,7 +812,7 @@ export const generateProactiveInsights = async (
   soldArticles: any[],
   currentMonth: number
 ): Promise<ProactiveInsight[]> => {
-  const model = "gemini-3-pro-preview";
+  const model = "gemini-2.5-flash";
 
   const seasonMap: Record<number, string> = {
     1: 'winter', 2: 'winter', 3: 'spring',
