@@ -310,88 +310,79 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
     setIsMinimized(!isMinimized);
   };
 
+  if (!isOpen) {
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-[24px] shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] backdrop-blur-lg transition-all duration-500 hover:scale-105 active:scale-95 flex items-center gap-2 group border border-white/20"
+      >
+        <div className="relative">
+          <Bot size={24} className="drop-shadow-sm" />
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-white shadow-sm"></span>
+          </span>
+        </div>
+        <span className="font-semibold pr-1 group-hover:block hidden animate-in slide-in-from-right-2 duration-300 text-shadow">Ma Coach IA</span>
+      </button>
+    );
+  }
+
+  if (isMinimized) {
+    return (
+      <button
+        onClick={toggleMinimize}
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/90 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100"
+      >
+        <div className="relative">
+          <img
+            src="/kelly-avatar.png"
+            alt="Kelly"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-400/40 shadow-sm"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              const fallback = target.nextElementSibling as HTMLElement;
+              if (fallback) fallback.style.display = 'flex';
+            }}
+          />
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full hidden items-center justify-center shadow-sm">
+            <Bot size={22} className="text-white" />
+          </div>
+          {hasAnalysis && (
+            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-sm"></span>
+            </span>
+          )}
+        </div>
+        <div className="flex flex-col items-start">
+          <span className="font-bold text-sm text-emerald-600">Kelly</span>
+          <span className="text-[11px] text-gray-600">
+            {hasAnalysis ? 'Analyse disponible' : 'Prête à analyser'}
+          </span>
+        </div>
+        <Maximize2 size={16} className="text-emerald-500 group-hover:scale-110 transition-transform duration-300" />
+      </button>
+    );
+  }
+
   return (
     <>
-      {/* Bouton déclencheur avec transition d'opacité inverse */}
-      {!isMinimized && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-[24px] shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] backdrop-blur-lg hover:scale-105 active:scale-95 flex items-center gap-2 group border border-white/20 transition-all duration-500 ${
-            isOpen ? 'opacity-0 pointer-events-none scale-90' : 'opacity-100 scale-100'
-          }`}
-        >
-          <div className="relative">
-            <Bot size={24} className="drop-shadow-sm" />
-            <span className="absolute -top-1 -right-1 flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-white shadow-sm"></span>
-            </span>
-          </div>
-          <span className="font-semibold pr-1 group-hover:block hidden animate-in slide-in-from-right-2 duration-300 text-shadow">Ma Coach IA</span>
-        </button>
-      )}
-
-      {/* Version minimisée */}
-      {isMinimized && (
-        <button
-          onClick={toggleMinimize}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/90 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100"
-        >
-          <div className="relative">
-            <img
-              src="/kelly-avatar.png"
-              alt="Kelly"
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-400/40 shadow-sm"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'flex';
-              }}
-            />
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full hidden items-center justify-center shadow-sm">
-              <Bot size={22} className="text-white" />
-            </div>
-            {hasAnalysis && (
-              <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
-                <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-sm"></span>
-              </span>
-            )}
-          </div>
-          <div className="flex flex-col items-start">
-            <span className="font-bold text-sm text-emerald-600">Kelly</span>
-            <span className="text-[11px] text-gray-600">
-              {hasAnalysis ? 'Analyse disponible' : 'Prête à analyser'}
-            </span>
-          </div>
-          <Maximize2 size={16} className="text-emerald-500 group-hover:scale-110 transition-transform duration-300" />
-        </button>
-      )}
-
-      {/* Fenêtre de chat avec transitions fluides */}
-      {isOpen && (
-        <>
-          <div
-            className={`fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm transition-all duration-500 ${
-              isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
-            onClick={handleClose}
-          />
-          <div
-            ref={containerRef}
-            className={`z-[71] max-w-[calc(100vw-2rem)] sm:w-[420px] h-[620px] max-h-[85vh] bg-white/95 backdrop-blur-2xl rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40 flex flex-col overflow-hidden transition-all duration-500 ${
-              position
-                ? 'fixed'
-                : 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-            } ${
-              isOpen
-                ? 'translate-y-0 scale-100 opacity-100'
-                : 'translate-y-20 scale-90 opacity-0 pointer-events-none'
-            }`}
-            style={position ? { left: `${position.x}px`, top: `${position.y}px` } : {}}
-            onClick={(e) => e.stopPropagation()}
-          >
+      <div
+        className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm animate-in fade-in duration-500"
+        onClick={handleClose}
+      />
+      <div
+        ref={containerRef}
+        className={`z-[71] max-w-[calc(100vw-2rem)] sm:w-[420px] h-[620px] max-h-[85vh] bg-white/95 backdrop-blur-2xl rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40 flex flex-col overflow-hidden ${
+          position
+            ? 'fixed'
+            : 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+        } animate-in slide-in-from-bottom-10 duration-500`}
+        style={position ? { left: `${position.x}px`, top: `${position.y}px` } : {}}
+        onClick={(e) => e.stopPropagation()}
+      >
       <div
         className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-5 flex justify-between items-center text-white sm:cursor-move select-none relative overflow-hidden"
         onMouseDown={handleMouseDown}
@@ -601,9 +592,7 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
           Kelly peut dire des trucs chelous. Vérifiez toujours ses conseils.
         </p>
       </div>
-          </div>
-        </>
-      )}
+      </div>
     </>
   );
 };
