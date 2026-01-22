@@ -46,6 +46,7 @@ const decodeAudioData = async (pcm: ArrayBuffer): Promise<AudioBuffer> => {
 
 const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApplySuggestion }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [loading, setLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
@@ -288,10 +289,14 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
   };
 
   const handleClose = () => {
-    setIsOpen(false);
-    setHasAnalysis(false);
-    setIsMinimized(false);
-    setPosition(null);
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+      setHasAnalysis(false);
+      setIsMinimized(false);
+      setPosition(null);
+    }, 300);
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -314,16 +319,19 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-[24px] shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] backdrop-blur-lg transition-all duration-500 hover:scale-105 active:scale-95 flex items-center gap-2 group border border-white/20"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/20 backdrop-blur-md text-white p-4 rounded-[24px] shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.5)] transition-all duration-500 hover:scale-105 active:scale-95 flex items-center gap-2 group border border-white/30 animate-in fade-in slide-in-from-bottom-4 duration-700"
+        style={{
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.8) 0%, rgba(5, 150, 105, 0.9) 100%)',
+        }}
       >
         <div className="relative">
-          <Bot size={24} className="drop-shadow-sm" />
+          <Bot size={24} className="drop-shadow-lg" />
           <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white shadow-sm"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-white shadow-lg"></span>
           </span>
         </div>
-        <span className="font-semibold pr-1 group-hover:block hidden animate-in slide-in-from-right-2 duration-300 text-shadow">Ma Coach IA</span>
+        <span className="font-semibold pr-1 group-hover:block hidden animate-in slide-in-from-right-2 duration-300 drop-shadow-md">Ma Coach IA</span>
       </button>
     );
   }
@@ -332,13 +340,13 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
     return (
       <button
         onClick={toggleMinimize}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/90 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/30 backdrop-blur-2xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)] transition-all duration-500 flex items-center gap-3 group animate-in fade-in slide-in-from-bottom-4 duration-700 hover:scale-105 active:scale-95 border border-white/40"
       >
         <div className="relative">
           <img
             src="/kelly-avatar.png"
             alt="Kelly"
-            className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-400/40 shadow-sm"
+            className="w-10 h-10 rounded-full object-cover ring-2 ring-emerald-400/50 shadow-lg"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
@@ -346,23 +354,23 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
               if (fallback) fallback.style.display = 'flex';
             }}
           />
-          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full hidden items-center justify-center shadow-sm">
+          <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full hidden items-center justify-center shadow-lg">
             <Bot size={22} className="text-white" />
           </div>
           {hasAnalysis && (
             <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-sm"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-lg"></span>
             </span>
           )}
         </div>
         <div className="flex flex-col items-start">
-          <span className="font-bold text-sm text-emerald-600">Kelly</span>
-          <span className="text-[11px] text-gray-600">
+          <span className="font-bold text-sm text-emerald-700 drop-shadow-sm">Kelly</span>
+          <span className="text-[11px] text-gray-700">
             {hasAnalysis ? 'Analyse disponible' : 'Prête à analyser'}
           </span>
         </div>
-        <Maximize2 size={16} className="text-emerald-500 group-hover:scale-110 transition-transform duration-300" />
+        <Maximize2 size={16} className="text-emerald-600 group-hover:scale-110 transition-transform duration-300" />
       </button>
     );
   }
@@ -370,30 +378,45 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
   return (
     <>
       <div
-        className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm animate-in fade-in duration-500"
+        className={`fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm transition-all duration-300 ${
+          isClosing ? 'animate-out fade-out' : 'animate-in fade-in'
+        }`}
         onClick={handleClose}
       />
       <div
         ref={containerRef}
-        className={`z-[71] max-w-[calc(100vw-2rem)] sm:w-[420px] h-[620px] max-h-[85vh] bg-white/95 backdrop-blur-2xl rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40 flex flex-col overflow-hidden ${
+        className={`z-[71] w-[95vw] sm:w-[420px] h-[90vh] sm:h-[620px] max-h-[90vh] bg-white/10 backdrop-blur-3xl rounded-[32px] shadow-[0_20px_80px_rgba(0,0,0,0.3)] border border-white/30 flex flex-col overflow-hidden ${
           position
             ? 'fixed'
             : 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-        } animate-in slide-in-from-bottom-10 duration-500`}
-        style={position ? { left: `${position.x}px`, top: `${position.y}px` } : {}}
+        } transition-all duration-500 ${
+          isClosing
+            ? 'animate-out fade-out zoom-out-95 slide-out-to-bottom-10'
+            : 'animate-in fade-in zoom-in-95 slide-in-from-bottom-10'
+        }`}
+        style={position ? {
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%)',
+        } : {
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%)',
+        }}
         onClick={(e) => e.stopPropagation()}
       >
       <div
-        className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-5 flex justify-between items-center text-white sm:cursor-move select-none relative overflow-hidden"
+        className="bg-white/20 backdrop-blur-xl p-5 flex justify-between items-center text-white sm:cursor-move select-none relative overflow-hidden border-b border-white/30"
         onMouseDown={handleMouseDown}
+        style={{
+          background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.6) 0%, rgba(5, 150, 105, 0.7) 100%)',
+        }}
       >
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA4IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-40 backdrop-blur-sm"></div>
         <div className="flex items-center gap-3 pointer-events-none relative z-10">
           <div className="relative">
             <img
               src="/kelly-avatar.png"
               alt="Kelly"
-              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/40 shadow-lg"
+              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/50 shadow-xl"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
                 target.style.display = 'none';
@@ -401,17 +424,17 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
                 if (fallback) fallback.style.display = 'flex';
               }}
             />
-            <div className="w-11 h-11 bg-white/20 rounded-full hidden items-center justify-center backdrop-blur-sm">
+            <div className="w-11 h-11 bg-white/30 backdrop-blur-md rounded-full hidden items-center justify-center">
               <Bot size={22} className="text-white" />
             </div>
           </div>
           <div>
-            <h3 className="font-bold text-base text-white flex items-center gap-1.5 drop-shadow-sm">
+            <h3 className="font-bold text-base text-white flex items-center gap-1.5 drop-shadow-lg">
               Kelly
-              <GripVertical size={14} className="text-white/60 hidden sm:block" />
+              <GripVertical size={14} className="text-white/70 hidden sm:block" />
             </h3>
-            <p className="text-[11px] text-white/90 flex items-center gap-1.5 drop-shadow-sm">
-              <span className={`w-2 h-2 rounded-full shadow-sm ${isSpeaking ? 'bg-yellow-300 animate-pulse' : 'bg-white'}`}></span>
+            <p className="text-[11px] text-white/95 flex items-center gap-1.5 drop-shadow-md">
+              <span className={`w-2 h-2 rounded-full shadow-md ${isSpeaking ? 'bg-yellow-300 animate-pulse' : 'bg-white/90'}`}></span>
               {isSpeaking ? 'Parle...' : 'En ligne'}
             </p>
           </div>
@@ -419,10 +442,10 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
         <div className="flex items-center gap-2 pointer-events-auto relative z-10">
           <button
             onClick={toggleVoice}
-            className={`p-2.5 rounded-2xl transition-all duration-300 active:scale-90 ${
+            className={`p-2.5 rounded-2xl backdrop-blur-md transition-all duration-300 active:scale-90 ${
               voiceEnabled
-                ? 'bg-white/25 text-white hover:bg-white/35 shadow-lg'
-                : 'text-white/70 hover:text-white hover:bg-white/15'
+                ? 'bg-white/30 text-white hover:bg-white/40 shadow-lg border border-white/40'
+                : 'text-white/80 hover:text-white hover:bg-white/20 border border-white/20'
             }`}
             title={voiceEnabled ? 'Désactiver la voix' : 'Activer la voix'}
           >
@@ -430,28 +453,28 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
           </button>
           <button
             onClick={toggleMinimize}
-            className="sm:hidden p-2.5 rounded-2xl text-white/70 hover:text-white hover:bg-white/15 transition-all duration-300 active:scale-90"
+            className="sm:hidden p-2.5 rounded-2xl text-white/80 hover:text-white hover:bg-white/20 backdrop-blur-md transition-all duration-300 active:scale-90 border border-white/20"
             title="Réduire"
           >
             <Minimize2 size={18} />
           </button>
           <button
             onClick={handleClose}
-            className="p-2.5 rounded-2xl text-white/70 hover:text-white hover:bg-white/15 transition-all duration-300 active:scale-90"
+            className="p-2.5 rounded-2xl text-white/80 hover:text-white hover:bg-white/20 backdrop-blur-md transition-all duration-300 active:scale-90 border border-white/20"
           >
             <X size={18} />
           </button>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-gradient-to-b from-emerald-50/50 to-white/80 backdrop-blur-sm" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto p-5 space-y-4 backdrop-blur-xl" ref={scrollRef}>
         {messages.map((msg, idx) => (
-          <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-500`}>
+          <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-3 duration-500`}>
             <div
               className={`max-w-[85%] rounded-[20px] p-4 text-sm leading-relaxed transition-all duration-300 hover:scale-[1.02] ${
                 msg.role === 'user'
-                  ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_4px_20px_rgba(16,185,129,0.25)] rounded-br-md'
-                  : 'bg-white/80 backdrop-blur-xl text-gray-800 border border-emerald-100/50 shadow-[0_4px_20px_rgba(0,0,0,0.08)] rounded-bl-md'
+                  ? 'bg-gradient-to-br from-emerald-500/90 to-emerald-600/90 backdrop-blur-xl text-white shadow-[0_4px_20px_rgba(16,185,129,0.35)] rounded-br-md border border-white/20'
+                  : 'bg-white/25 backdrop-blur-2xl text-gray-900 border border-white/40 shadow-[0_4px_20px_rgba(0,0,0,0.12)] rounded-bl-md'
               }`}
             >
               <div className="flex items-start gap-2">
@@ -472,8 +495,8 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
               </div>
 
               {msg.suggestions && msg.suggestions.length > 0 && (
-                <div className="mt-4 space-y-3 border-t border-emerald-100/50 pt-4">
-                  <p className="text-xs font-semibold text-gray-700 mb-2">Cochez les suggestions à appliquer :</p>
+                <div className="mt-4 space-y-3 border-t border-white/40 pt-4">
+                  <p className="text-xs font-semibold text-gray-800 mb-2">Cochez les suggestions à appliquer :</p>
                   {msg.suggestions.map((suggestion, sidx) => {
                     const isApplied = isSuggestionApplied(suggestion);
                     const fieldLabels: Record<string, string> = {
@@ -488,7 +511,7 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
                     };
 
                     return (
-                      <div key={sidx} className="bg-gradient-to-br from-white to-emerald-50/30 border border-emerald-100/60 rounded-[16px] p-3.5 shadow-sm hover:shadow-md transition-all duration-300 hover:scale-[1.01]">
+                      <div key={sidx} className="bg-white/30 backdrop-blur-xl border border-white/50 rounded-[16px] p-3.5 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
                         <div className="flex items-start gap-2.5">
                           <button
                             onClick={() => handleApplySuggestion(suggestion)}
@@ -507,8 +530,8 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
                             <p className="text-xs text-gray-600 mb-2.5 line-clamp-2">
                               {suggestion.reason}
                             </p>
-                            <div className="bg-white/80 backdrop-blur-sm rounded-xl p-2.5 border border-emerald-100/50 shadow-sm">
-                              <p className="text-xs text-emerald-700 font-semibold break-words">
+                            <div className="bg-white/40 backdrop-blur-md rounded-xl p-2.5 border border-white/60 shadow-md">
+                              <p className="text-xs text-emerald-800 font-semibold break-words">
                                 {suggestion.suggestedValue}
                               </p>
                             </div>
@@ -523,21 +546,21 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
           </div>
         ))}
         {loading && (
-          <div className="flex justify-start animate-in slide-in-from-bottom-2 duration-500">
-            <div className="bg-white/80 backdrop-blur-xl border border-emerald-100/50 rounded-[20px] rounded-bl-md p-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] flex items-center gap-2.5">
-              <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-bounce shadow-sm"></div>
-              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.15s] shadow-sm"></div>
-              <div className="w-2.5 h-2.5 bg-emerald-600 rounded-full animate-bounce [animation-delay:-0.3s] shadow-sm"></div>
+          <div className="flex justify-start animate-in fade-in slide-in-from-bottom-3 duration-500">
+            <div className="bg-white/25 backdrop-blur-2xl border border-white/40 rounded-[20px] rounded-bl-md p-4 shadow-[0_4px_20px_rgba(0,0,0,0.12)] flex items-center gap-2.5">
+              <div className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-bounce shadow-md"></div>
+              <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:-0.15s] shadow-md"></div>
+              <div className="w-2.5 h-2.5 bg-emerald-600 rounded-full animate-bounce [animation-delay:-0.3s] shadow-md"></div>
             </div>
           </div>
         )}
       </div>
 
-      <div className="p-5 bg-gradient-to-t from-white via-white to-white/80 backdrop-blur-xl border-t border-emerald-100/50 space-y-3">
+      <div className="p-5 bg-white/10 backdrop-blur-2xl border-t border-white/30 space-y-3">
         {hasAnalysis && appliedSuggestions.size > 0 && (
           <button
             onClick={handleApply}
-            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3.5 rounded-[18px] shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex items-center justify-center gap-2 group active:scale-95"
+            className="w-full bg-gradient-to-r from-emerald-500/90 to-emerald-600/90 backdrop-blur-xl hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3.5 rounded-[18px] shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.5)] transition-all duration-300 flex items-center justify-center gap-2 group active:scale-95 border border-white/20"
           >
             <Check size={19} className="group-hover:scale-110 transition-transform duration-300" />
             Appliquer ({appliedSuggestions.size} sélectionnée{appliedSuggestions.size > 1 ? 's' : ''})
@@ -548,7 +571,7 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
           <button
             onClick={handleAnalyze}
             disabled={loading}
-            className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3.5 rounded-[18px] shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed group active:scale-95"
+            className="w-full bg-gradient-to-r from-emerald-500/90 to-emerald-600/90 backdrop-blur-xl hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold py-3.5 rounded-[18px] shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.5)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed group active:scale-95 border border-white/20"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -577,18 +600,18 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
             }}
             placeholder="Pose ta question à Kelly..."
             disabled={loading}
-            className="flex-1 px-4 py-3.5 bg-white/80 backdrop-blur-sm border border-emerald-100 rounded-[18px] focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-sm transition-all duration-300 placeholder:text-gray-400"
+            className="flex-1 px-4 py-3.5 bg-white/25 backdrop-blur-xl border border-white/40 rounded-[18px] focus:outline-none focus:ring-2 focus:ring-emerald-400/50 focus:border-white/60 disabled:opacity-50 disabled:cursor-not-allowed text-sm text-gray-900 shadow-lg transition-all duration-300 placeholder:text-gray-600"
           />
           <button
             onClick={handleAskQuestion}
             disabled={loading || !userQuestion.trim()}
-            className="px-5 py-3.5 bg-gradient-to-br from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-[18px] shadow-[0_4px_20px_rgba(16,185,129,0.3)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.4)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-90"
+            className="px-5 py-3.5 bg-gradient-to-br from-emerald-500/90 to-emerald-600/90 backdrop-blur-xl hover:from-emerald-600 hover:to-emerald-700 text-white rounded-[18px] shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.5)] transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-90 border border-white/20"
           >
             <Send size={18} className="transition-transform duration-300 group-hover:translate-x-0.5" />
           </button>
         </div>
 
-        <p className="text-center text-[11px] text-gray-500 font-medium">
+        <p className="text-center text-[11px] text-gray-700 font-medium drop-shadow-sm">
           Kelly peut dire des trucs chelous. Vérifiez toujours ses conseils.
         </p>
       </div>
