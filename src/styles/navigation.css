@@ -1,0 +1,442 @@
+/* Navigation moderne avec animations sophistiquées */
+
+/* Animation pour les menus dropdown */
+@keyframes slideDownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation en cascade pour les items de menu */
+@keyframes cascadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Classe principale pour dropdown menu */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  margin-top: 0.5rem;
+  min-width: 14rem;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: 0.75rem;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  padding: 0.25rem;
+  z-index: 50;
+  animation: slideDownFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top;
+}
+
+/* Version large pour le menu admin */
+.dropdown-menu-large {
+  min-width: 16rem;
+}
+
+/* Animation des items de menu */
+.menu-item {
+  animation: cascadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  border-radius: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 0;
+  background: linear-gradient(to bottom, #10b981, #14b8a6);
+  transition: height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menu-item:hover::before {
+  height: 100%;
+}
+
+/* Animation pour les icônes */
+.menu-item svg {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Effet shimmer sur hover */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.menu-item:hover {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(16, 185, 129, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Animation pour le logo */
+@keyframes logoPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.logo-animation:hover {
+  animation: logoPulse 0.6s ease-in-out;
+}
+
+/* Transition douce pour les boutons de navigation */
+.nav-button {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.nav-button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(to right, #10b981, #14b8a6);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(-50%);
+}
+
+.nav-button:hover::after {
+  width: 80%;
+}
+
+/* Badge de notification avec animation pulse */
+@keyframes notificationPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+  }
+}
+
+.notification-badge {
+  animation: notificationPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Effet glassmorphism pour mobile menu */
+.mobile-menu-backdrop {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Animation pour les items mobiles */
+@keyframes mobileSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.mobile-menu-item {
+  animation: mobileSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* Effet de scroll sur le header */
+.header-scrolled {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Animation pour ChevronDown */
+.chevron-rotate {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Effet de glow pour le bouton Kelly */
+@keyframes kellyGlow {
+  0%, 100% {
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 10px 25px -3px rgba(16, 185, 129, 0.4);
+  }
+}
+
+.kelly-button {
+  animation: kellyGlow 3s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kelly-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.4);
+}
+
+/* Effet de transition pour les sections */
+@keyframes sectionFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-animate {
+  animation: sectionFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Responsive animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Effet ripple au clic */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.ripple-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-effect::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: rgba(16, 185, 129, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+}
+
+.ripple-effect:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Amélioration des transitions globales */
+* {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Animation pour le badge du vendeur statique */
+.seller-badge {
+  animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Effet de glow subtil pour les items actifs */
+@keyframes activeGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 12px 2px rgba(16, 185, 129, 0.15);
+  }
+}
+
+.active-item {
+  animation: activeGlow 3s ease-in-out infinite;
+}
+
+/* Effet de survol pour les boutons de navigation */
+.nav-button:hover {
+  transform: translateY(-1px);
+}
+
+/* Animation de bouncing pour les notifications */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Effet de gradient animé pour les menus */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-animate {
+  background: linear-gradient(
+    90deg,
+    rgba(16, 185, 129, 0.1),
+    rgba(20, 184, 166, 0.1),
+    rgba(16, 185, 129, 0.1)
+  );
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+/* Effet de flou progressif pour les dividers */
+.divider-blur {
+  position: relative;
+}
+
+.divider-blur::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(229, 231, 235, 1) 20%,
+    rgba(229, 231, 235, 1) 80%,
+    transparent
+  );
+}
+
+/* Animation pour les icônes au survol */
+@keyframes iconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+.icon-float:hover svg {
+  animation: iconFloat 0.6s ease-in-out;
+}
+
+/* Effet de lumière suivant le curseur */
+.menu-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-item::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+  pointer-events: none;
+}
+
+.menu-item:hover::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* Transition fluide pour le chevron */
+.chevron-rotate {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Ajout d'un effet de profondeur sur les ombres */
+.dropdown-menu {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+/* Animation subtile au focus pour l'accessibilité */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgba(16, 185, 129, 0.5);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+/* Transition douce pour le mobile menu */
+@keyframes mobileMenuSlide {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.mobile-menu-backdrop {
+  animation: mobileMenuSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
