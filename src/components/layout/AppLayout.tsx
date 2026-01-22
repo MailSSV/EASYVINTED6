@@ -264,12 +264,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                 onClick={() => setShowKellyPanel(!showKellyPanel)}
                 className="kelly-button hidden md:flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 relative ripple-effect"
                 title="Kelly Conseils"
+                style={{ overflow: 'visible' }}
               >
                 <Bot className="w-4 h-4 transition-transform hover:rotate-12" />
                 <span className="hidden lg:inline">Kelly</span>
                 {/* Badge de notification avec compteur */}
                 {kellyInsightsCount > 0 && (
-                  <span className="notification-badge absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                  <span className="notification-badge absolute -top-2 -right-2 min-w-[22px] h-[22px] px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg border-2 border-white z-10">
                     {kellyInsightsCount}
                   </span>
                 )}
