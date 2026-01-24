@@ -197,13 +197,30 @@ export function KellyProactive({
       if (articlesResult.error) throw articlesResult.error;
       if (soldResult.error) throw soldResult.error;
 
+      console.log("[Kelly] Articles récupérés:", articlesResult.data?.length || 0);
+      console.log("[Kelly] Articles vendus:", soldResult.data?.length || 0);
+
+      // Si aucun article, ne pas appeler l'IA
+      if (!articlesResult.data || articlesResult.data.length === 0) {
+        console.log("[Kelly] Aucun article trouvé, pas d'insights à générer");
+        if (!isMountedRef.current) return;
+        setInsights([]);
+        setLastRefresh(new Date());
+        if (isMountedRef.current) setLoading(false);
+        return;
+      }
+
       const currentMonth = new Date().getMonth() + 1;
 
+      console.log("[Kelly] Appel à generateProactiveInsights...");
       const generatedInsights = await generateProactiveInsights(
         articlesResult.data || [],
         soldResult.data || [],
         currentMonth
       );
+
+      console.log("[Kelly] Insights générés:", generatedInsights.length);
+      console.log("[Kelly] Insights détails:", generatedInsights);
 
       // ✅ V2: éviter le N+1 -> fetch titres en 1 seule requête
       const allIds = Array.from(new Set(generatedInsights.flatMap((i) => i.articleIds || [])));
@@ -229,11 +246,13 @@ export function KellyProactive({
       // Filtrage dismissed ici (une seule fois)
       const filtered = enrichedInsights.filter((i) => !dismissed.has(i.title));
 
+      console.log("[Kelly] Insights après filtrage dismissed:", filtered.length);
+
       if (!isMountedRef.current) return;
       setInsights(filtered);
       setLastRefresh(new Date());
     } catch (error) {
-      console.error("Error loading insights:", error);
+      console.error("[Kelly] Error loading insights:", error);
     } finally {
       if (isMountedRef.current) setLoading(false);
     }
