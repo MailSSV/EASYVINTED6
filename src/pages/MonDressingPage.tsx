@@ -665,7 +665,7 @@ export function MonDressingPage() {
             <div>
               <h1 className="text-2xl font-bold text-gray-900"> Mon dressing</h1>
               <p className="text-sm text-gray-600 mt-1">
-                Vous avez {items.filter(item => item.type === 'article').length} {items.filter(item => item.type === 'article').length === 1 ? 'article' : 'articles'} dans votre dressing
+                Vous avez {items.filter(item => item.type === 'article').length} {items.filter(item => item.type === 'article').length === 1 ? 'article' : 'articles'} dans votre dressing :)
               </p>
             </div>
             <div className="flex items-center gap-2">
