@@ -60,19 +60,19 @@ export function AppLayout({ children }: AppLayoutProps) {
       setTimeout(() => {
         setShowUserMenu(false);
         setClosingUserMenu(false);
-      }, 450);
+      }, 1450);
     } else if (menuType === 'admin') {
       setClosingAdminMenu(true);
       setTimeout(() => {
         setShowAdminMenu(false);
         setClosingAdminMenu(false);
-      }, 450);
+      }, 1450);
     } else if (menuType === 'seller') {
       setClosingSellerMenu(true);
       setTimeout(() => {
         setShowSellerMenu(false);
         setClosingSellerMenu(false);
-      }, 450);
+      }, 1450);
     }
   };
 
