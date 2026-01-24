@@ -193,7 +193,7 @@ export function AdminDetailDrawer({
       const timer = setTimeout(() => {
         setShouldRender(false);
         setIsClosing(false);
-      }, 600);
+      }, 400);
       return () => clearTimeout(timer);
     }
   }, [isOpen, shouldRender]);
@@ -381,18 +381,110 @@ export function AdminDetailDrawer({
 
   return (
     <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes drawerSlideIn {
+          0% {
+            transform: translateX(100%) rotateY(-15deg);
+            opacity: 0;
+          }
+          60% {
+            transform: translateX(-10px) rotateY(0deg);
+          }
+          100% {
+            transform: translateX(0) rotateY(0deg);
+            opacity: 1;
+          }
+        }
+        @keyframes drawerSlideOut {
+          0% {
+            transform: translateX(0) scale(1) rotateY(0deg) rotateZ(0deg);
+            opacity: 1;
+            filter: blur(0px);
+          }
+          40% {
+            transform: translateX(30px) scale(0.98) rotateY(5deg) rotateZ(-2deg);
+            opacity: 0.8;
+          }
+          100% {
+            transform: translateX(150%) scale(0.7) rotateY(25deg) rotateZ(8deg);
+            opacity: 0;
+            filter: blur(8px);
+          }
+        }
+        @keyframes contentFadeIn {
+          0% {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes contentFadeOut {
+          0% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: translateY(-30px) scale(0.9);
+          }
+        }
+        @keyframes backdropFadeIn {
+          0% {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+          }
+          100% {
+            opacity: 1;
+            backdrop-filter: blur(4px);
+          }
+        }
+        @keyframes backdropFadeOut {
+          0% {
+            opacity: 1;
+            backdrop-filter: blur(4px);
+          }
+          100% {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+          }
+        }
+        .drawer-backdrop-enter {
+          animation: backdropFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .drawer-backdrop-exit {
+          animation: backdropFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .drawer-enter {
+          animation: drawerSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .drawer-exit {
+          animation: drawerSlideOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+        .drawer-content-item {
+          animation: contentFadeIn 0.6s ease-out forwards;
+          animation-delay: calc(var(--item-index) * 0.05s);
+        }
+        .drawer-content-item-exit {
+          animation: contentFadeOut 0.25s ease-out forwards;
+          animation-delay: calc((5 - var(--item-index)) * 0.02s);
+        }
+      `}} />
+
       {shouldRender && (
         <>
           <div
             className={`fixed inset-0 bg-black/50 z-[60] ${
-              !isClosing ? 'backdrop-vortex-enter' : 'backdrop-vortex-exit'
+              !isClosing ? 'drawer-backdrop-enter' : 'drawer-backdrop-exit'
             } ${isClosing ? 'pointer-events-none' : ''}`}
             onClick={handleClose}
           />
 
           <div
             className={`fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-[60] ${
-              !isClosing ? 'drawer-vortex-enter' : 'drawer-vortex-exit'
+              !isClosing ? 'drawer-enter' : 'drawer-exit'
             }`}
             style={{ perspective: '1000px' }}
           >
@@ -415,7 +507,7 @@ export function AdminDetailDrawer({
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className={`aspect-square bg-slate-100 relative ${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 0 } as React.CSSProperties}>
+            <div className={`aspect-square bg-slate-100 relative ${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 0 } as React.CSSProperties}>
               {item.photos && item.photos.length > 0 ? (
                 <>
                   <img
@@ -469,7 +561,7 @@ export function AdminDetailDrawer({
             )}
 
             <div className="p-5 space-y-5">
-              <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 1 } as React.CSSProperties}>
+              <div className={`${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 1 } as React.CSSProperties}>
                 <h3 className="text-xl font-bold text-slate-900 mb-1">{item.title}</h3>
                 <p className="text-sm font-medium text-slate-600">
                   {item.brand || 'Sans marque'}
@@ -483,7 +575,7 @@ export function AdminDetailDrawer({
               </div>
 
               {item.description && (
-                <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 2 } as React.CSSProperties}>
+                <div className={`${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 2 } as React.CSSProperties}>
                   <h4 className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-2">Description</h4>
                   <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl">
                     <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">
@@ -554,7 +646,7 @@ export function AdminDetailDrawer({
 
                   {/* SEO & Marketing Section for Lots */}
                   {((item.seo_keywords && item.seo_keywords.length > 0) || (item.hashtags && item.hashtags.length > 0) || (item.search_terms && item.search_terms.length > 0)) && (
-                    <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 2.5 } as React.CSSProperties}>
+                    <div className={`${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 2.5 } as React.CSSProperties}>
                       <button
                         onClick={() => setSeoExpanded(!seoExpanded)}
                         className="w-full flex items-center justify-between p-3 bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl hover:from-teal-100 hover:to-emerald-100 transition-colors"
@@ -648,7 +740,7 @@ export function AdminDetailDrawer({
               )}
 
               {item.type === 'article' && (
-                <div className={`grid grid-cols-2 gap-3 ${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 3 } as React.CSSProperties}>
+                <div className={`grid grid-cols-2 gap-3 ${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 3 } as React.CSSProperties}>
                   {item.brand && (
                     <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                       <p className="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mb-1">Marque</p>
@@ -699,7 +791,7 @@ export function AdminDetailDrawer({
 
               {/* SEO & Marketing Section */}
               {item.type === 'article' && ((item.seo_keywords && item.seo_keywords.length > 0) || (item.hashtags && item.hashtags.length > 0) || (item.search_terms && item.search_terms.length > 0)) && (
-                <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 3.5 } as React.CSSProperties}>
+                <div className={`${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 3.5 } as React.CSSProperties}>
                   <button
                     onClick={() => setSeoExpanded(!seoExpanded)}
                     className="w-full flex items-center justify-between p-3 bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-200 rounded-xl hover:from-teal-100 hover:to-emerald-100 transition-colors"
@@ -773,7 +865,7 @@ export function AdminDetailDrawer({
                 </div>
               )}
 
-              <div className={`grid grid-cols-2 gap-3 ${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 4 } as React.CSSProperties}>
+              <div className={`grid grid-cols-2 gap-3 ${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 4 } as React.CSSProperties}>
                 {item.type === 'article' && (
                   <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
                     <p className="text-[10px] uppercase tracking-wide text-emerald-700 font-semibold mb-1">Prix</p>
@@ -822,7 +914,7 @@ export function AdminDetailDrawer({
 
              
 
-              <div className={`bg-slate-50 rounded-2xl p-4 border border-slate-200 ${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 5 } as React.CSSProperties}>
+              <div className={`bg-slate-50 rounded-2xl p-4 border border-slate-200 ${!isClosing ? 'drawer-content-item' : 'drawer-content-item-exit'}`} style={{ '--item-index': 5 } as React.CSSProperties}>
                 <div className="mb-2">
                   <button
                     onClick={onStatusChange}

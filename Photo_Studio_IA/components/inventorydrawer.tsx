@@ -12,8 +12,6 @@ interface InventoryDrawerProps {
 const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLoadItem }) => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isClosing, setIsClosing] = useState(false);
-  const [shouldRender, setShouldRender] = useState(false);
 
   const loadItems = () => {
     setItems(getInventory());
@@ -21,26 +19,10 @@ const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLo
 
   useEffect(() => {
     if (isOpen) {
-      setShouldRender(true);
-      setIsClosing(false);
       loadItems();
-      setSearchQuery('');
-    } else if (shouldRender) {
-      setIsClosing(true);
-      const timer = setTimeout(() => {
-        setShouldRender(false);
-        setIsClosing(false);
-      }, 600);
-      return () => clearTimeout(timer);
+      setSearchQuery(''); // Reset search when opening
     }
-  }, [isOpen, shouldRender]);
-
-  const handleClose = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, 50);
-  };
+  }, [isOpen]);
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -65,25 +47,18 @@ const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLo
     );
   });
 
-  if (!shouldRender) return null;
-
   return (
     <>
       {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-black/20 z-40 ${
-          !isClosing ? 'backdrop-vortex-enter' : 'backdrop-vortex-exit'
-        } ${isClosing ? 'pointer-events-none' : ''}`}
-        onClick={handleClose}
-      />
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity animate-in fade-in" 
+          onClick={onClose}
+        />
+      )}
 
       {/* Drawer */}
-      <div
-        className={`fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col ${
-          !isClosing ? 'drawer-vortex-enter' : 'drawer-vortex-exit'
-        }`}
-        style={{ perspective: '1000px' }}
-      >
+      <div className={`fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         
         {/* Header Section */}
         <div className="bg-white border-b border-gray-100 z-10 shadow-sm">
@@ -104,7 +79,7 @@ const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLo
                   <ArchiveX size={20} />
                 </button>
               )}
-              <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
                 <X size={20} />
               </button>
             </div>
