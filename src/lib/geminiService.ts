@@ -7,10 +7,8 @@ const getAI = () => {
   if (!ai) {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
-      console.error("[Gemini] VITE_GEMINI_API_KEY is not configured");
       throw new Error("VITE_GEMINI_API_KEY is not configured");
     }
-    console.log("[Gemini] Initialisation de GoogleGenAI avec clé API:", apiKey.substring(0, 10) + "...");
     ai = new GoogleGenAI({ apiKey });
   }
   return ai;
@@ -814,7 +812,7 @@ export const generateProactiveInsights = async (
   soldArticles: any[],
   currentMonth: number
 ): Promise<ProactiveInsight[]> => {
-  const model = "gemini-2.0-flash-exp";
+  const model = "gemini-2.5-flash";
 
   const seasonMap: Record<number, string> = {
     1: 'winter', 2: 'winter', 3: 'spring',
@@ -881,12 +879,11 @@ GENERE DES INSIGHTS selon ces categories:
 REGLES:
 - Maximum 5 insights au total
 - Priorise les actions a fort impact
-- CRITIQUE: Dans articleIds, tu DOIS retourner les IDs COMPLETS (UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx) tels qu'ils apparaissent dans les donnees. NE TRONQUE PAS les IDs.
+- Sois specifique avec les IDs d'articles concernes
 - Le message doit etre motivant et actionnable
 - Suggere des actions concretes (baisser de X%, ajouter photos, creer lot, publier, mettre en vente, optimiser SEO)`;
 
   try {
-    console.log("[Gemini] Appel à generateContent pour insights...");
     const response = await getAI().models.generateContent({
       model: model,
       contents: [{ parts: [{ text: prompt }] }],
@@ -926,19 +923,13 @@ REGLES:
       },
     });
 
-    console.log("[Gemini] Réponse reçue:", response);
-
     if (response.text) {
-      console.log("[Gemini] Response text:", response.text);
       const parsed = JSON.parse(response.text);
-      console.log("[Gemini] Parsed insights:", parsed.insights?.length || 0);
       return parsed.insights || [];
     }
-    console.log("[Gemini] Pas de texte dans la réponse");
     return [];
   } catch (error: any) {
-    console.error("[Gemini] Proactive insights generation failed:", error);
-    console.error("[Gemini] Error details:", error.message, error.stack);
+    console.error("Proactive insights generation failed:", error);
     return [];
   }
 };

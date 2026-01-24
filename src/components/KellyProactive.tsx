@@ -1,28 +1,11 @@
-// kellyProactive.tsx
-import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import {
-  Bot,
-  Sparkles,
-  TrendingDown,
-  Sun,
-  Clock,
-  AlertCircle,
-  Package,
-  X,
-  ChevronRight,
-  RefreshCw,
-  BellOff,
-  Check,
-  Loader2,
-  Search,
-  Minimize2,
-} from "lucide-react";
-import { generateProactiveInsights, ProactiveInsight, optimizeArticleSEO } from "../lib/geminiService";
-import { generateLotTitleAndDescription } from "../lib/lotAnalysisService";
-import { supabase } from "../lib/supabase";
-import { useAuth } from "../contexts/AuthContext";
-import { Article } from "../types/article";
-import { Toast } from "./ui/Toast";
+import React, { useState, useEffect } from 'react';
+import { Bot, Sparkles, TrendingDown, Sun, Clock, AlertCircle, Package, X, ChevronRight, RefreshCw, Bell, BellOff, Check, Loader2, Hash, Search, Minimize2 } from 'lucide-react';
+import { generateProactiveInsights, ProactiveInsight, optimizeArticleSEO } from '../lib/geminiService';
+import { generateLotTitleAndDescription } from '../lib/lotAnalysisService';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
+import { Article } from '../types/article';
+import { Toast } from './ui/Toast';
 
 interface KellyProactiveProps {
   onNavigateToArticle?: (articleId: string) => void;
@@ -33,70 +16,67 @@ interface KellyProactiveProps {
   onInsightsCountChange?: (count: number) => void;
 }
 
-const INSIGHT_CONFIG: Record<
-  string,
-  { icon: typeof TrendingDown; color: string; bg: string; border: string }
-> = {
+const INSIGHT_CONFIG: Record<string, { icon: typeof TrendingDown; color: string; bg: string; border: string }> = {
   ready_to_publish: {
     icon: Sparkles,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
   },
   ready_to_list: {
     icon: Sparkles,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
   },
   price_drop: {
     icon: TrendingDown,
-    color: "text-red-600",
-    bg: "bg-red-50",
-    border: "border-red-200",
+    color: 'text-red-600',
+    bg: 'bg-red-50',
+    border: 'border-red-200',
   },
   seasonal: {
     icon: Sun,
-    color: "text-amber-600",
-    bg: "bg-amber-50",
-    border: "border-amber-200",
+    color: 'text-amber-600',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
   },
   stale: {
     icon: Clock,
-    color: "text-orange-600",
-    bg: "bg-orange-50",
-    border: "border-orange-200",
+    color: 'text-orange-600',
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
   },
   incomplete: {
     icon: AlertCircle,
-    color: "text-blue-600",
-    bg: "bg-blue-50",
-    border: "border-blue-200",
+    color: 'text-blue-600',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
   },
   opportunity: {
     icon: Sparkles,
-    color: "text-emerald-600",
-    bg: "bg-emerald-50",
-    border: "border-emerald-200",
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
   },
   bundle: {
     icon: Package,
-    color: "text-teal-600",
-    bg: "bg-teal-50",
-    border: "border-teal-200",
+    color: 'text-teal-600',
+    bg: 'bg-teal-50',
+    border: 'border-teal-200',
   },
   seo_optimization: {
     icon: Search,
-    color: "text-purple-600",
-    bg: "bg-purple-50",
-    border: "border-purple-200",
+    color: 'text-purple-600',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
   },
 };
 
 const PRIORITY_BADGE: Record<string, { label: string; class: string }> = {
-  high: { label: "Urgent", class: "bg-red-100 text-red-700" },
-  medium: { label: "Important", class: "bg-amber-100 text-amber-700" },
-  low: { label: "Conseil", class: "bg-gray-100 text-gray-700" },
+  high: { label: 'Urgent', class: 'bg-red-100 text-red-700' },
+  medium: { label: 'Important', class: 'bg-amber-100 text-amber-700' },
+  low: { label: 'Conseil', class: 'bg-gray-100 text-gray-700' },
 };
 
 interface ActionModalState {
@@ -107,23 +87,12 @@ interface ActionModalState {
   success: boolean;
 }
 
-export function KellyProactive({
-  onNavigateToArticle,
-  onCreateBundle,
-  onRefreshData,
-  isOpenFromHeader,
-  onToggleFromHeader,
-  onInsightsCountChange,
-}: KellyProactiveProps) {
+export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshData, isOpenFromHeader, onToggleFromHeader, onInsightsCountChange }: KellyProactiveProps) {
   const { user } = useAuth();
-
   const [insights, setInsights] = useState<ProactiveInsight[]>([]);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
-
-  // ✅ V2: dismissed persistant (localStorage)
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
-
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [actionModal, setActionModal] = useState<ActionModalState>({
@@ -134,45 +103,13 @@ export function KellyProactive({
     success: false,
   });
   const [executingAction, setExecutingAction] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // ✅ V2: prevent setState after unmount
-  const isMountedRef = useRef(true);
   useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  // localStorage key (par user)
-  const dismissedKey = useMemo(() => {
-    if (!user?.id) return null;
-    return `kelly_dismissed_${user.id}`;
-  }, [user?.id]);
-
-  // Load dismissed from localStorage
-  useEffect(() => {
-    if (!dismissedKey) return;
-    try {
-      const raw = localStorage.getItem(dismissedKey);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) setDismissed(new Set(parsed));
-      }
-    } catch {
-      // ignore
+    if (user && notificationsEnabled) {
+      loadInsights();
     }
-  }, [dismissedKey]);
-
-  // Persist dismissed
-  useEffect(() => {
-    if (!dismissedKey) return;
-    try {
-      localStorage.setItem(dismissedKey, JSON.stringify(Array.from(dismissed)));
-    } catch {
-      // ignore
-    }
-  }, [dismissed, dismissedKey]);
+  }, [user, notificationsEnabled]);
 
   useEffect(() => {
     if (isOpenFromHeader !== undefined) {
@@ -180,429 +117,352 @@ export function KellyProactive({
     }
   }, [isOpenFromHeader]);
 
-  const loadInsights = useCallback(async () => {
+  const loadInsights = async () => {
     if (!user || loading) return;
 
     setLoading(true);
     try {
       const [articlesResult, soldResult] = await Promise.all([
         supabase
-          .from("articles")
-          .select("*")
-          .eq("user_id", user.id)
-          .in("status", ["draft", "ready", "published", "scheduled"]),
-        supabase.from("articles").select("*").eq("user_id", user.id).eq("status", "sold"),
+          .from('articles')
+          .select('*')
+          .eq('user_id', user.id)
+          .in('status', ['draft', 'ready', 'published', 'scheduled']),
+        supabase
+          .from('articles')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('status', 'sold'),
       ]);
 
       if (articlesResult.error) throw articlesResult.error;
       if (soldResult.error) throw soldResult.error;
 
-      console.log("[Kelly] Articles récupérés:", articlesResult.data?.length || 0);
-      console.log("[Kelly] Articles vendus:", soldResult.data?.length || 0);
-
-      // Si aucun article, ne pas appeler l'IA
-      if (!articlesResult.data || articlesResult.data.length === 0) {
-        console.log("[Kelly] Aucun article trouvé, pas d'insights à générer");
-        if (!isMountedRef.current) return;
-        setInsights([]);
-        setLastRefresh(new Date());
-        if (isMountedRef.current) setLoading(false);
-        return;
-      }
-
       const currentMonth = new Date().getMonth() + 1;
-
-      console.log("[Kelly] Appel à generateProactiveInsights...");
       const generatedInsights = await generateProactiveInsights(
         articlesResult.data || [],
         soldResult.data || [],
         currentMonth
       );
 
-      console.log("[Kelly] Insights générés:", generatedInsights.length);
-      console.log("[Kelly] Insights détails:", generatedInsights);
+      const enrichedInsights = await Promise.all(
+        generatedInsights.map(async (insight) => {
+          if (insight.articleIds && insight.articleIds.length > 0) {
+            const { data: articles } = await supabase
+              .from('articles')
+              .select('title')
+              .eq('user_id', user.id)
+              .in('id', insight.articleIds);
 
-      // ✅ V2: éviter le N+1 -> fetch titres en 1 seule requête
-      const allIds = Array.from(new Set(generatedInsights.flatMap((i) => i.articleIds || [])));
-
-      let titlesById: Record<string, string> = {};
-      if (allIds.length > 0) {
-        // Vérifier si on a des IDs partiels (< 36 caractères = UUID incomplet)
-        const hasPartialIds = allIds.some(id => id.length < 36);
-
-        if (hasPartialIds) {
-          console.log("[Kelly] IDs partiels détectés, récupération de tous les articles...");
-          // Si on a des IDs partiels, on récupère tous les articles et on fait le matching manuellement
-          const { data: allArticlesData, error: allArticlesError } = await supabase
-            .from("articles")
-            .select("id,title")
-            .eq("user_id", user.id);
-
-          if (!allArticlesError && allArticlesData) {
-            // Créer une map pour matcher les IDs partiels
-            allIds.forEach(partialId => {
-              const match = allArticlesData.find(a => a.id.startsWith(partialId));
-              if (match) {
-                titlesById[partialId] = match.title;
-              }
-            });
+            return {
+              ...insight,
+              articleTitles: articles?.map(a => a.title) || []
+            };
           }
-        } else {
-          // IDs complets, requête normale
-          const { data: titlesData, error: titlesError } = await supabase
-            .from("articles")
-            .select("id,title")
-            .eq("user_id", user.id)
-            .in("id", allIds);
+          return insight;
+        })
+      );
 
-          if (!titlesError && titlesData) {
-            titlesById = Object.fromEntries(titlesData.map((a) => [a.id, a.title]));
-          }
-        }
-
-        console.log("[Kelly] Titres récupérés:", Object.keys(titlesById).length, "sur", allIds.length);
-      }
-
-      const enrichedInsights: ProactiveInsight[] = generatedInsights.map((insight) => ({
-        ...insight,
-        articleTitles: (insight.articleIds || []).map((id) => titlesById[id]).filter(Boolean),
-      }));
-
-      // Filtrage dismissed ici (une seule fois)
-      const filtered = enrichedInsights.filter((i) => !dismissed.has(i.title));
-
-      console.log("[Kelly] Insights après filtrage dismissed:", filtered.length);
-
-      if (!isMountedRef.current) return;
-      setInsights(filtered);
+      setInsights(enrichedInsights.filter(i => !dismissed.has(i.title)));
       setLastRefresh(new Date());
     } catch (error) {
-      console.error("[Kelly] Error loading insights:", error);
+      console.error('Error loading insights:', error);
     } finally {
-      if (isMountedRef.current) setLoading(false);
+      setLoading(false);
     }
-  }, [user, loading, dismissed]);
+  };
 
-  useEffect(() => {
-    if (user && notificationsEnabled) {
-      loadInsights();
+  const handleDismiss = (insight: ProactiveInsight) => {
+    setDismissed(prev => new Set([...prev, insight.title]));
+    setInsights(prev => prev.filter(i => i.title !== insight.title));
+  };
+
+  const loadArticlesForAction = async (articleIds: string[]) => {
+    if (!user || !articleIds.length) return [];
+
+    const { data, error } = await supabase
+      .from('articles')
+      .select('id, title, price, brand, photos')
+      .eq('user_id', user.id)
+      .in('id', articleIds);
+
+    if (error) {
+      console.error('Error loading articles:', error);
+      return [];
     }
-  }, [user, notificationsEnabled, loadInsights]);
+    return data || [];
+  };
 
-  const handleDismiss = useCallback((insight: ProactiveInsight) => {
-    setDismissed((prev) => new Set([...prev, insight.title]));
-    setInsights((prev) => prev.filter((i) => i.title !== insight.title));
-  }, []);
+  const executeAction = async (insight: ProactiveInsight) => {
+    if (!user || !insight.articleIds?.length) return;
 
-  const loadArticlesForAction = useCallback(
-    async (articleIds: string[]) => {
-      if (!user || !articleIds.length) return [];
+    setExecutingAction(insight.title);
 
-      const { data, error } = await supabase
-        .from("articles")
-        .select("id, title, price, brand, photos")
-        .eq("user_id", user.id)
-        .in("id", articleIds);
+    try {
+      let shouldReloadInsights = false;
 
-      if (error) {
-        console.error("Error loading articles:", error);
-        return [];
-      }
-      return data || [];
-    },
-    [user]
-  );
+      switch (insight.type) {
+        case 'ready_to_publish':
+        case 'ready_to_list': {
+          for (const articleId of insight.articleIds) {
+            await supabase
+              .from('articles')
+              .update({ status: 'ready', updated_at: new Date().toISOString() })
+              .eq('id', articleId)
+              .eq('user_id', user.id);
+          }
 
-  const executeAction = useCallback(
-    async (insight: ProactiveInsight) => {
-      if (!user || !insight.articleIds?.length) return;
+          handleDismiss(insight);
+          onRefreshData?.();
+          setToast({
+            type: 'success',
+            text: `${insight.articleIds.length} article${insight.articleIds.length > 1 ? 's passés' : ' passé'} en statut "Prêt" avec succès !`
+          });
+          shouldReloadInsights = true;
+          break;
+        }
 
-      setExecutingAction(insight.title);
+        case 'price_drop': {
+          const percentage = insight.suggestedAction?.value
+            ? parseInt(insight.suggestedAction.value as string)
+            : 10;
 
-      try {
-        let shouldReloadInsights = false;
+          const articles = await loadArticlesForAction(insight.articleIds);
 
-        switch (insight.type) {
-          case "ready_to_publish":
-          case "ready_to_list": {
-            for (const articleId of insight.articleIds) {
-              await supabase
-                .from("articles")
-                .update({ status: "ready", updated_at: new Date().toISOString() })
-                .eq("id", articleId)
-                .eq("user_id", user.id);
-            }
+          for (const article of articles) {
+            const currentPrice = parseFloat(article.price) || 0;
+            const newPrice = Math.round(currentPrice * (1 - percentage / 100));
 
-            handleDismiss(insight);
-            onRefreshData?.();
-            setToast({
-              type: "success",
-              text: `${insight.articleIds.length} article${
-                insight.articleIds.length > 1 ? "s passés" : " passé"
-              } en statut "Prêt" avec succès !`,
-            });
-            shouldReloadInsights = true;
+            await supabase
+              .from('articles')
+              .update({ price: newPrice, updated_at: new Date().toISOString() })
+              .eq('id', article.id)
+              .eq('user_id', user.id);
+          }
+
+          handleDismiss(insight);
+          onRefreshData?.();
+          setToast({
+            type: 'success',
+            text: `Prix baissé de ${percentage}% sur ${articles.length} article${articles.length > 1 ? 's' : ''} !`
+          });
+          shouldReloadInsights = true;
+          break;
+        }
+
+        case 'bundle': {
+          if (!insight.articleIds || insight.articleIds.length < 2) break;
+
+          const { data: fullArticles, error: articlesError } = await supabase
+            .from('articles')
+            .select('*')
+            .eq('user_id', user.id)
+            .in('id', insight.articleIds);
+
+          if (articlesError || !fullArticles) {
+            console.error('Error loading articles:', articlesError);
             break;
           }
 
-          case "price_drop": {
-            const percentage = insight.suggestedAction?.value
-              ? parseInt(insight.suggestedAction.value as string)
-              : 10;
+          const { data: userProfile } = await supabase
+            .from('user_profiles')
+            .select('writing_style, default_seller_id')
+            .eq('user_id', user.id)
+            .single();
 
-            const articles = await loadArticlesForAction(insight.articleIds);
+          const totalPrice = fullArticles.reduce((sum, article) => sum + (Number(article.price) || 0), 0);
+          const discountPercentage = 15;
+          const lotPrice = Math.round(totalPrice * (1 - discountPercentage / 100));
 
-            for (const a of articles) {
-              const currentPrice = parseFloat(a.price) || 0;
-              const newPrice = Math.round(currentPrice * (1 - percentage / 100));
+          const analysis = await generateLotTitleAndDescription(
+            fullArticles as Article[],
+            userProfile?.writing_style || undefined
+          );
 
-              await supabase
-                .from("articles")
-                .update({ price: newPrice, updated_at: new Date().toISOString() })
-                .eq("id", a.id)
-                .eq("user_id", user.id);
-            }
+          const allPhotos = fullArticles.flatMap(article => article.photos || []);
+          const coverPhoto = allPhotos[0] || null;
 
-            handleDismiss(insight);
-            onRefreshData?.();
-            setToast({
-              type: "success",
-              text: `Prix baissé de ${percentage}% sur ${articles.length} article${
-                articles.length > 1 ? "s" : ""
-              } !`,
-            });
-            shouldReloadInsights = true;
+          const { data: newLot, error: lotError } = await supabase
+            .from('lots')
+            .insert({
+              user_id: user.id,
+              name: analysis.title,
+              description: analysis.description,
+              price: lotPrice,
+              original_total_price: totalPrice,
+              discount_percentage: discountPercentage,
+              cover_photo: coverPhoto,
+              photos: allPhotos,
+              status: 'draft',
+              seller_id: userProfile?.default_seller_id || null,
+              seo_keywords: analysis.seo_keywords,
+              hashtags: analysis.hashtags,
+              search_terms: analysis.search_terms,
+              ai_confidence_score: analysis.ai_confidence_score,
+            })
+            .select()
+            .single();
+
+          if (lotError || !newLot) {
+            console.error('Error creating lot:', lotError);
             break;
           }
 
-          case "bundle": {
-            if (!insight.articleIds || insight.articleIds.length < 2) break;
+          const lotItems = insight.articleIds.map(articleId => ({
+            lot_id: newLot.id,
+            article_id: articleId,
+          }));
 
-            const { data: fullArticles, error: articlesError } = await supabase
-              .from("articles")
-              .select("*")
-              .eq("user_id", user.id)
-              .in("id", insight.articleIds);
+          const { error: itemsError } = await supabase
+            .from('lot_items')
+            .insert(lotItems);
 
-            if (articlesError || !fullArticles) {
-              console.error("Error loading articles:", articlesError);
-              break;
-            }
+          if (itemsError) {
+            console.error('Error creating lot items:', itemsError);
+            await supabase.from('lots').delete().eq('id', newLot.id);
+            break;
+          }
 
-            const { data: userProfile } = await supabase
-              .from("user_profiles")
-              .select("writing_style, default_seller_id")
-              .eq("user_id", user.id)
+          handleDismiss(insight);
+          onRefreshData?.();
+          window.dispatchEvent(new CustomEvent('kellyLotCreated', { detail: { lotId: newLot.id } }));
+          setToast({
+            type: 'success',
+            text: `Lot créé avec succès : ${analysis.title}`
+          });
+          shouldReloadInsights = true;
+          break;
+        }
+
+        case 'seasonal':
+        case 'opportunity': {
+          if (insight.articleIds?.[0] && onNavigateToArticle) {
+            onNavigateToArticle(insight.articleIds[0]);
+          }
+          break;
+        }
+
+        case 'stale': {
+          const percentage = 15;
+          const articles = await loadArticlesForAction(insight.articleIds);
+
+          for (const article of articles) {
+            const currentPrice = parseFloat(article.price) || 0;
+            const newPrice = Math.round(currentPrice * (1 - percentage / 100));
+
+            await supabase
+              .from('articles')
+              .update({ price: newPrice, updated_at: new Date().toISOString() })
+              .eq('id', article.id)
+              .eq('user_id', user.id);
+          }
+
+          handleDismiss(insight);
+          onRefreshData?.();
+          setToast({
+            type: 'success',
+            text: `Prix baissé de ${percentage}% sur ${articles.length} article${articles.length > 1 ? 's inactifs' : ' inactif'} !`
+          });
+          shouldReloadInsights = true;
+          break;
+        }
+
+        case 'seo_optimization': {
+          if (!insight.articleIds || insight.articleIds.length === 0) break;
+
+          let optimizedCount = 0;
+
+          for (const articleId of insight.articleIds) {
+            const { data: article } = await supabase
+              .from('articles')
+              .select('*')
+              .eq('id', articleId)
+              .eq('user_id', user.id)
               .single();
 
-            const totalPrice = fullArticles.reduce((sum, a) => sum + (Number(a.price) || 0), 0);
-            const discountPercentage = 15;
-            const lotPrice = Math.round(totalPrice * (1 - discountPercentage / 100));
+            if (!article) continue;
 
-            const analysis = await generateLotTitleAndDescription(
-              fullArticles as Article[],
-              userProfile?.writing_style || undefined
-            );
+            const seoData = await optimizeArticleSEO(article);
 
-            const allPhotos = fullArticles.flatMap((a) => a.photos || []);
-            const coverPhoto = allPhotos[0] || null;
-
-            const { data: newLot, error: lotError } = await supabase
-              .from("lots")
-              .insert({
-                user_id: user.id,
-                name: analysis.title,
-                description: analysis.description,
-                price: lotPrice,
-                original_total_price: totalPrice,
-                discount_percentage: discountPercentage,
-                cover_photo: coverPhoto,
-                photos: allPhotos,
-                status: "draft",
-                seller_id: userProfile?.default_seller_id || null,
-                seo_keywords: (analysis as any).seo_keywords,
-                hashtags: (analysis as any).hashtags,
-                search_terms: (analysis as any).search_terms,
-                ai_confidence_score: (analysis as any).ai_confidence_score,
+            await supabase
+              .from('articles')
+              .update({
+                seo_keywords: seoData.seo_keywords,
+                hashtags: seoData.hashtags,
+                search_terms: seoData.search_terms,
+                updated_at: new Date().toISOString(),
               })
-              .select()
-              .single();
+              .eq('id', articleId)
+              .eq('user_id', user.id);
 
-            if (lotError || !newLot) {
-              console.error("Error creating lot:", lotError);
-              break;
-            }
-
-            const lotItems = insight.articleIds.map((articleId) => ({
-              lot_id: newLot.id,
-              article_id: articleId,
-            }));
-
-            const { error: itemsError } = await supabase.from("lot_items").insert(lotItems);
-
-            if (itemsError) {
-              console.error("Error creating lot items:", itemsError);
-              await supabase.from("lots").delete().eq("id", newLot.id);
-              break;
-            }
-
-            handleDismiss(insight);
-            onRefreshData?.();
-            window.dispatchEvent(new CustomEvent("kellyLotCreated", { detail: { lotId: newLot.id } }));
-            onCreateBundle?.(insight.articleIds);
-            setToast({
-              type: "success",
-              text: `Lot créé avec succès : ${analysis.title}`,
-            });
-            shouldReloadInsights = true;
-            break;
+            optimizedCount++;
           }
 
-          case "seasonal":
-          case "opportunity": {
-            if (insight.articleIds?.[0] && onNavigateToArticle) {
-              onNavigateToArticle(insight.articleIds[0]);
-            }
-            break;
-          }
-
-          case "stale": {
-            const percentage = 15;
-            const articles = await loadArticlesForAction(insight.articleIds);
-
-            for (const a of articles) {
-              const currentPrice = parseFloat(a.price) || 0;
-              const newPrice = Math.round(currentPrice * (1 - percentage / 100));
-
-              await supabase
-                .from("articles")
-                .update({ price: newPrice, updated_at: new Date().toISOString() })
-                .eq("id", a.id)
-                .eq("user_id", user.id);
-            }
-
+          if (optimizedCount > 0) {
             handleDismiss(insight);
             onRefreshData?.();
             setToast({
-              type: "success",
-              text: `Prix baissé de ${percentage}% sur ${articles.length} article${
-                articles.length > 1 ? "s inactifs" : " inactif"
-              } !`,
+              type: 'success',
+              text: `SEO optimisé pour ${optimizedCount} article${optimizedCount > 1 ? 's' : ''} avec succès !`
             });
             shouldReloadInsights = true;
-            break;
           }
-
-          case "seo_optimization": {
-            if (!insight.articleIds || insight.articleIds.length === 0) break;
-
-            let optimizedCount = 0;
-
-            for (const articleId of insight.articleIds) {
-              const { data: a } = await supabase
-                .from("articles")
-                .select("*")
-                .eq("id", articleId)
-                .eq("user_id", user.id)
-                .single();
-
-              if (!a) continue;
-
-              const seoData = await optimizeArticleSEO(a);
-
-              await supabase
-                .from("articles")
-                .update({
-                  seo_keywords: (seoData as any).seo_keywords,
-                  hashtags: (seoData as any).hashtags,
-                  search_terms: (seoData as any).search_terms,
-                  updated_at: new Date().toISOString(),
-                })
-                .eq("id", articleId)
-                .eq("user_id", user.id);
-
-              optimizedCount++;
-            }
-
-            if (optimizedCount > 0) {
-              handleDismiss(insight);
-              onRefreshData?.();
-              setToast({
-                type: "success",
-                text: `SEO optimisé pour ${optimizedCount} article${optimizedCount > 1 ? "s" : ""} avec succès !`,
-              });
-              shouldReloadInsights = true;
-            }
-            break;
-          }
-
-          case "incomplete": {
-            if (insight.articleIds?.[0] && onNavigateToArticle) {
-              onNavigateToArticle(insight.articleIds[0]);
-            }
-            break;
-          }
-
-          default: {
-            if (insight.articleIds?.[0] && onNavigateToArticle) {
-              onNavigateToArticle(insight.articleIds[0]);
-            }
-          }
+          break;
         }
 
-        if (shouldReloadInsights) {
-          setTimeout(() => {
-            if (isMountedRef.current) loadInsights();
-          }, 2000);
+        case 'incomplete': {
+          if (insight.articleIds?.[0] && onNavigateToArticle) {
+            onNavigateToArticle(insight.articleIds[0]);
+          }
+          break;
         }
-      } catch (error) {
-        console.error("Error executing action:", error);
-        setToast({
-          type: "error",
-          text: "Une erreur est survenue lors de l'exécution de l'action",
-        });
-      } finally {
-        if (isMountedRef.current) setExecutingAction(null);
+
+        default: {
+          if (insight.articleIds?.[0] && onNavigateToArticle) {
+            onNavigateToArticle(insight.articleIds[0]);
+          }
+        }
       }
-    },
-    [user, handleDismiss, onRefreshData, onNavigateToArticle, onCreateBundle, loadInsights, loadArticlesForAction]
-  );
 
-  const handleAction = useCallback(
-    async (insight: ProactiveInsight) => {
-      const needsModal =
-        insight.type === "price_drop" ||
-        insight.type === "stale" ||
-        insight.type === "ready_to_publish" ||
-        insight.type === "ready_to_list" ||
-        insight.type === "bundle" ||
-        insight.type === "seo_optimization";
-
-      if (needsModal) {
-        const articles = await loadArticlesForAction(insight.articleIds || []);
-        setActionModal({
-          isOpen: true,
-          insight,
-          articles,
-          loading: false,
-          success: false,
-        });
-      } else {
-        executeAction(insight);
+      if (shouldReloadInsights) {
+        setTimeout(() => {
+          loadInsights();
+        }, 2000);
       }
-    },
-    [executeAction, loadArticlesForAction]
-  );
+    } catch (error) {
+      console.error('Error executing action:', error);
+      setToast({
+        type: 'error',
+        text: 'Une erreur est survenue lors de l\'exécution de l\'action'
+      });
+    } finally {
+      setExecutingAction(null);
+    }
+  };
 
-  const confirmAction = useCallback(async () => {
+  const handleAction = async (insight: ProactiveInsight) => {
+    if (insight.type === 'price_drop' || insight.type === 'stale' || insight.type === 'ready_to_publish' || insight.type === 'ready_to_list' || insight.type === 'bundle' || insight.type === 'seo_optimization') {
+      const articles = await loadArticlesForAction(insight.articleIds || []);
+      setActionModal({
+        isOpen: true,
+        insight,
+        articles,
+        loading: false,
+        success: false,
+      });
+    } else {
+      executeAction(insight);
+    }
+  };
+
+  const confirmAction = async () => {
     if (!actionModal.insight) return;
 
-    setActionModal((prev) => ({ ...prev, loading: true }));
+    setActionModal(prev => ({ ...prev, loading: true }));
     await executeAction(actionModal.insight);
-    setActionModal((prev) => ({ ...prev, loading: false, success: true }));
+    setActionModal(prev => ({ ...prev, loading: false, success: true }));
 
     setTimeout(() => {
-      if (!isMountedRef.current) return;
       setActionModal({
         isOpen: false,
         insight: null,
@@ -611,13 +471,14 @@ export function KellyProactive({
         success: false,
       });
     }, 1500);
-  }, [actionModal.insight, executeAction]);
+  };
 
-  // On filtre au setInsights, mais on garde un "safe" ici au cas où
-  const visibleInsights = useMemo(() => insights.filter((i) => !dismissed.has(i.title)), [insights, dismissed]);
+  const visibleInsights = insights.filter(i => !dismissed.has(i.title));
 
   useEffect(() => {
-    onInsightsCountChange?.(visibleInsights.length);
+    if (onInsightsCountChange) {
+      onInsightsCountChange(visibleInsights.length);
+    }
   }, [visibleInsights.length, onInsightsCountChange]);
 
   if (!notificationsEnabled) {
@@ -625,7 +486,7 @@ export function KellyProactive({
       <button
         onClick={() => setNotificationsEnabled(true)}
         className="fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] bg-gray-100 text-gray-600 p-3 rounded-full shadow-lg hover:bg-gray-200 transition-all"
-        title="Réactiver les conseils Kelly"
+        title="Reactiver les conseils Kelly"
       >
         <BellOff className="w-5 h-5" />
       </button>
@@ -638,11 +499,7 @@ export function KellyProactive({
 
   return (
     <>
-      <div
-        className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-300 ${
-          expanded ? "w-[360px] max-w-[calc(100vw-2rem)]" : "w-auto"
-        } ${!expanded && isOpenFromHeader !== undefined ? "hidden" : ""}`}
-      >
+      <div className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-300 ${expanded ? 'w-[360px] max-w-[calc(100vw-2rem)]' : 'w-auto'} ${!expanded && isOpenFromHeader !== undefined ? 'hidden' : ''}`}>
         {expanded ? (
           <div className="bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
@@ -655,7 +512,7 @@ export function KellyProactive({
                       className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
+                        target.style.display = 'none';
                       }}
                     />
                     <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
@@ -666,21 +523,19 @@ export function KellyProactive({
                   <div>
                     <h3 className="font-bold text-white text-sm">Kelly a des conseils</h3>
                     <p className="text-[10px] text-white/70">
-                      {visibleInsights.length} suggestion{visibleInsights.length > 1 ? "s" : ""} pour booster tes ventes
+                      {visibleInsights.length} suggestion{visibleInsights.length > 1 ? 's' : ''} pour booster tes ventes
                     </p>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-1">
                   <button
                     onClick={loadInsights}
                     disabled={loading}
                     className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
-                    title="Rafraîchir"
+                    title="Rafraichir"
                   >
-                    <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                   </button>
-
                   <button
                     onClick={() => {
                       setExpanded(false);
@@ -691,14 +546,12 @@ export function KellyProactive({
                   >
                     <Minimize2 className="w-4 h-4" />
                   </button>
-
                   <button
                     onClick={() => {
                       setExpanded(false);
                       onToggleFromHeader?.();
                     }}
                     className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                    title="Fermer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -714,7 +567,7 @@ export function KellyProactive({
                     <p className="text-sm text-gray-500">Kelly analyse ton dressing...</p>
                   </div>
                 </div>
-              ) : (
+              ) : loading && visibleInsights.length > 0 ? (
                 <>
                   {visibleInsights.map((insight, idx) => {
                     const config = INSIGHT_CONFIG[insight.type] || INSIGHT_CONFIG.opportunity;
@@ -731,25 +584,17 @@ export function KellyProactive({
                           <div className={`p-2 rounded-lg bg-white/80 ${config.color} flex-shrink-0`}>
                             <Icon className="w-4 h-4" />
                           </div>
-
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${priority.class}`}>
                                 {priority.label}
                               </span>
-
-                              {(insight.type === "price_drop" ||
-                                insight.type === "stale" ||
-                                insight.type === "bundle" ||
-                                insight.type === "ready_to_publish" ||
-                                insight.type === "ready_to_list" ||
-                                insight.type === "seo_optimization") && (
+                              {(insight.type === 'price_drop' || insight.type === 'stale' || insight.type === 'bundle' || insight.type === 'ready_to_publish' || insight.type === 'ready_to_list' || insight.type === 'seo_optimization') && (
                                 <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">
                                   Action rapide
                                 </span>
                               )}
                             </div>
-
                             {insight.articleTitles && insight.articleTitles.length > 0 && (
                               <div className="mb-1">
                                 <p className="text-xs text-gray-500 font-medium">
@@ -761,21 +606,18 @@ export function KellyProactive({
                                 </p>
                               </div>
                             )}
-
-                            <h4 className={`font-semibold text-sm ${config.color} mb-1`}>{insight.title}</h4>
-                            <p className="text-xs text-gray-600 leading-relaxed mb-2">{insight.message}</p>
-
+                            <h4 className={`font-semibold text-sm ${config.color} mb-1`}>
+                              {insight.title}
+                            </h4>
+                            <p className="text-xs text-gray-600 leading-relaxed mb-2">
+                              {insight.message}
+                            </p>
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => handleAction(insight)}
                                 disabled={isExecuting}
                                 className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
-                                  insight.type === "price_drop" ||
-                                  insight.type === "stale" ||
-                                  insight.type === "bundle" ||
-                                  insight.type === "ready_to_publish" ||
-                                  insight.type === "ready_to_list" ||
-                                  insight.type === "seo_optimization"
+                                  insight.type === 'price_drop' || insight.type === 'stale' || insight.type === 'bundle' || insight.type === 'ready_to_publish' || insight.type === 'ready_to_list' || insight.type === 'seo_optimization'
                                     ? `${config.bg} ${config.color} border ${config.border} hover:shadow-sm`
                                     : `${config.color} hover:underline`
                                 } disabled:opacity-50`}
@@ -789,7 +631,6 @@ export function KellyProactive({
                                   </>
                                 )}
                               </button>
-
                               <button
                                 onClick={() => handleDismiss(insight)}
                                 className="ml-auto p-1 text-gray-400 hover:text-gray-600 transition-colors"
@@ -803,24 +644,95 @@ export function KellyProactive({
                       </div>
                     );
                   })}
+                  <div className="flex items-center justify-center py-4 border-t border-gray-100">
+                    <div className="flex items-center gap-2 text-emerald-600">
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <p className="text-xs font-medium">Recherche de nouvelles suggestions...</p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                visibleInsights.map((insight, idx) => {
+                  const config = INSIGHT_CONFIG[insight.type] || INSIGHT_CONFIG.opportunity;
+                  const priority = PRIORITY_BADGE[insight.priority] || PRIORITY_BADGE.low;
+                  const Icon = config.icon;
+                  const isExecuting = executingAction === insight.title;
 
-                  {loading && visibleInsights.length > 0 && (
-                    <div className="flex items-center justify-center py-4 border-t border-gray-100">
-                      <div className="flex items-center gap-2 text-emerald-600">
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <p className="text-xs font-medium">Recherche de nouvelles suggestions...</p>
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-xl border ${config.border} ${config.bg} group hover:shadow-md transition-all`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`p-2 rounded-lg bg-white/80 ${config.color} flex-shrink-0`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${priority.class}`}>
+                              {priority.label}
+                            </span>
+                            {(insight.type === 'price_drop' || insight.type === 'stale' || insight.type === 'bundle' || insight.type === 'ready_to_publish' || insight.type === 'ready_to_list' || insight.type === 'seo_optimization') && (
+                              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-emerald-100 text-emerald-700">
+                                Action rapide
+                              </span>
+                            )}
+                          </div>
+                          {insight.articleTitles && insight.articleTitles.length > 0 && (
+                            <div className="mb-1">
+                              <p className="text-xs text-gray-500 font-medium">
+                                {insight.articleTitles.length === 1 ? (
+                                  <span>{insight.articleTitles[0]}</span>
+                                ) : (
+                                  <span>{insight.articleTitles.length} articles concernés</span>
+                                )}
+                              </p>
+                            </div>
+                          )}
+                          <h4 className={`font-semibold text-sm ${config.color} mb-1`}>
+                            {insight.title}
+                          </h4>
+                          <p className="text-xs text-gray-600 leading-relaxed mb-2">
+                            {insight.message}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleAction(insight)}
+                              disabled={isExecuting}
+                              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all ${
+                                insight.type === 'price_drop' || insight.type === 'stale' || insight.type === 'bundle' || insight.type === 'ready_to_publish' || insight.type === 'ready_to_list' || insight.type === 'seo_optimization'
+                                  ? `${config.bg} ${config.color} border ${config.border} hover:shadow-sm`
+                                  : `${config.color} hover:underline`
+                              } disabled:opacity-50`}
+                            >
+                              {isExecuting ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <>
+                                  {insight.actionLabel}
+                                  <ChevronRight className="w-3 h-3" />
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => handleDismiss(insight)}
+                              className="text-xs text-gray-400 hover:text-gray-600"
+                            >
+                              Ignorer
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  )}
-                </>
+                  );
+                })
               )}
             </div>
 
             {lastRefresh && (
               <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
                 <p className="text-[10px] text-gray-400 text-center">
-                  Mis à jour :{" "}
-                  {lastRefresh.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                  Mis a jour : {lastRefresh.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
             )}
@@ -832,7 +744,6 @@ export function KellyProactive({
               onToggleFromHeader?.();
             }}
             className="relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-1 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
-            title="Ouvrir Kelly"
           >
             <img
               src="/kelly-avatar.png"
@@ -840,7 +751,10 @@ export function KellyProactive({
               className="w-12 h-12 rounded-xl object-cover"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.style.display = "none";
+                target.style.display = 'none';
+                const fallback = document.createElement('div');
+                fallback.innerHTML = '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>';
+                target.parentElement?.appendChild(fallback);
               }}
             />
             {visibleInsights.length > 0 && (
@@ -866,56 +780,59 @@ export function KellyProactive({
                   <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
                     <Check className="w-8 h-8 text-emerald-600" />
                   </div>
-                  <p className="text-lg font-semibold text-gray-900">Action effectuée !</p>
+                  <p className="text-lg font-semibold text-gray-900">Action effectuee !</p>
                   <p className="text-sm text-gray-600">
-                    {actionModal.insight?.type === "ready_to_publish" || actionModal.insight?.type === "ready_to_list"
-                      ? "Les articles sont maintenant prêts"
-                      : actionModal.insight?.type === "bundle"
-                      ? "Le lot a été créé avec succès"
-                      : actionModal.insight?.type === "seo_optimization"
-                      ? "Le référencement a été optimisé"
-                      : "Les prix ont été mis à jour"}
+                    {actionModal.insight?.type === 'ready_to_publish' || actionModal.insight?.type === 'ready_to_list'
+                      ? 'Les articles sont maintenant prets'
+                      : actionModal.insight?.type === 'bundle'
+                      ? 'Le lot a ete cree avec succes'
+                      : actionModal.insight?.type === 'seo_optimization'
+                      ? 'Le referencement a ete optimise'
+                      : 'Les prix ont ete mis a jour'}
                   </p>
                 </div>
               ) : (
                 <>
                   <p className="text-sm text-gray-600 mb-4">
-                    {actionModal.insight.type === "price_drop" || actionModal.insight.type === "stale"
-                      ? `Cette action va baisser le prix des articles suivants de ${
-                          actionModal.insight.suggestedAction?.value || 15
-                        }% :`
-                      : actionModal.insight.type === "ready_to_publish"
-                      ? `Cette action va passer les articles suivants en statut "Prêt" pour publication :`
-                      : actionModal.insight.type === "ready_to_list"
-                      ? `Cette action va passer les articles suivants en statut "Prêt" :`
-                      : actionModal.insight.type === "bundle"
-                      ? `Cette action va créer automatiquement un lot avec les articles suivants (réduction de 15% appliquée) :`
-                      : actionModal.insight.type === "seo_optimization"
-                      ? `Cette action va optimiser le référencement (mots-clés SEO, hashtags, termes de recherche) des articles suivants :`
+                    {actionModal.insight.type === 'price_drop' || actionModal.insight.type === 'stale'
+                      ? `Cette action va baisser le prix des articles suivants de ${actionModal.insight.suggestedAction?.value || 15}% :`
+                      : actionModal.insight.type === 'ready_to_publish'
+                      ? `Cette action va passer les articles suivants en statut "Pret" pour publication :`
+                      : actionModal.insight.type === 'ready_to_list'
+                      ? `Cette action va passer les articles suivants en statut "Pret" :`
+                      : actionModal.insight.type === 'bundle'
+                      ? `Cette action va creer automatiquement un lot avec les articles suivants (reduction de 15% appliquee) :`
+                      : actionModal.insight.type === 'seo_optimization'
+                      ? `Cette action va optimiser le referencement (mots-cles SEO, hashtags, termes de recherche) des articles suivants :`
                       : actionModal.insight.message}
                   </p>
 
                   {actionModal.articles.length > 0 && (
                     <>
                       <div className="space-y-2 max-h-48 overflow-y-auto mb-4">
-                        {actionModal.articles.map((a) => {
-                          const currentPrice = parseFloat(a.price) || 0;
+                        {actionModal.articles.map((article) => {
+                          const currentPrice = parseFloat(article.price) || 0;
                           const percentage = actionModal.insight?.suggestedAction?.value
                             ? parseInt(actionModal.insight.suggestedAction.value as string)
                             : 15;
                           const newPrice = Math.round(currentPrice * (1 - percentage / 100));
-                          const isPriceAction =
-                            actionModal.insight?.type === "price_drop" || actionModal.insight?.type === "stale";
-                          const isBundle = actionModal.insight?.type === "bundle";
+                          const isPriceAction = actionModal.insight?.type === 'price_drop' || actionModal.insight?.type === 'stale';
+                          const isBundle = actionModal.insight?.type === 'bundle';
 
                           return (
-                            <div key={a.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                              {a.photos?.[0] && (
-                                <img src={a.photos[0]} alt={a.title} className="w-12 h-12 object-cover rounded-lg" />
+                            <div key={article.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                              {article.photos?.[0] && (
+                                <img
+                                  src={article.photos[0]}
+                                  alt={article.title}
+                                  className="w-12 h-12 object-cover rounded-lg"
+                                />
                               )}
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{a.title}</p>
-                                <p className="text-xs text-gray-500">{a.brand}</p>
+                                <p className="text-sm font-medium text-gray-900 truncate">
+                                  {article.title}
+                                </p>
+                                <p className="text-xs text-gray-500">{article.brand}</p>
                               </div>
                               <div className="text-right">
                                 {isPriceAction ? (
@@ -926,32 +843,25 @@ export function KellyProactive({
                                 ) : isBundle ? (
                                   <p className="text-sm text-gray-600">{currentPrice} EUR</p>
                                 ) : (
-                                  <p className="text-sm font-bold text-emerald-600">→ Prêt</p>
+                                  <p className="text-sm font-bold text-emerald-600">→ Pret</p>
                                 )}
                               </div>
                             </div>
                           );
                         })}
                       </div>
-
-                      {actionModal.insight?.type === "bundle" && (
+                      {actionModal.insight?.type === 'bundle' && (
                         <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl mb-4">
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-700">Total articles :</span>
                             <span className="font-medium text-gray-900">
-                              {actionModal.articles
-                                .reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0)
-                                .toFixed(2)}{" "}
-                              EUR
+                              {actionModal.articles.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0).toFixed(2)} EUR
                             </span>
                           </div>
                           <div className="flex items-center justify-between text-sm mt-2">
                             <span className="text-emerald-700 font-semibold">Prix du lot (-15%) :</span>
                             <span className="font-bold text-emerald-700">
-                              {Math.round(
-                                actionModal.articles.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0) * 0.85
-                              )}{" "}
-                              EUR
+                              {Math.round(actionModal.articles.reduce((sum, a) => sum + (parseFloat(a.price) || 0), 0) * 0.85)} EUR
                             </span>
                           </div>
                         </div>
@@ -961,9 +871,7 @@ export function KellyProactive({
 
                   <div className="flex gap-3">
                     <button
-                      onClick={() =>
-                        setActionModal({ isOpen: false, insight: null, articles: [], loading: false, success: false })
-                      }
+                      onClick={() => setActionModal({ isOpen: false, insight: null, articles: [], loading: false, success: false })}
                       disabled={actionModal.loading}
                       className="flex-1 px-4 py-3 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors disabled:opacity-50"
                     >
@@ -994,7 +902,13 @@ export function KellyProactive({
         </div>
       )}
 
-      {toast && <Toast type={toast.type} text={toast.text} onClose={() => setToast(null)} />}
+      {toast && (
+        <Toast
+          type={toast.type}
+          text={toast.text}
+          onClose={() => setToast(null)}
+        />
+      )}
     </>
   );
 }
