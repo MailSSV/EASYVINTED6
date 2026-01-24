@@ -227,15 +227,40 @@ export function KellyProactive({
 
       let titlesById: Record<string, string> = {};
       if (allIds.length > 0) {
-        const { data: titlesData, error: titlesError } = await supabase
-          .from("articles")
-          .select("id,title")
-          .eq("user_id", user.id)
-          .in("id", allIds);
+        // Vérifier si on a des IDs partiels (< 36 caractères = UUID incomplet)
+        const hasPartialIds = allIds.some(id => id.length < 36);
 
-        if (!titlesError && titlesData) {
-          titlesById = Object.fromEntries(titlesData.map((a) => [a.id, a.title]));
+        if (hasPartialIds) {
+          console.log("[Kelly] IDs partiels détectés, récupération de tous les articles...");
+          // Si on a des IDs partiels, on récupère tous les articles et on fait le matching manuellement
+          const { data: allArticlesData, error: allArticlesError } = await supabase
+            .from("articles")
+            .select("id,title")
+            .eq("user_id", user.id);
+
+          if (!allArticlesError && allArticlesData) {
+            // Créer une map pour matcher les IDs partiels
+            allIds.forEach(partialId => {
+              const match = allArticlesData.find(a => a.id.startsWith(partialId));
+              if (match) {
+                titlesById[partialId] = match.title;
+              }
+            });
+          }
+        } else {
+          // IDs complets, requête normale
+          const { data: titlesData, error: titlesError } = await supabase
+            .from("articles")
+            .select("id,title")
+            .eq("user_id", user.id)
+            .in("id", allIds);
+
+          if (!titlesError && titlesData) {
+            titlesById = Object.fromEntries(titlesData.map((a) => [a.id, a.title]));
+          }
         }
+
+        console.log("[Kelly] Titres récupérés:", Object.keys(titlesById).length, "sur", allIds.length);
       }
 
       const enrichedInsights: ProactiveInsight[] = generatedInsights.map((insight) => ({

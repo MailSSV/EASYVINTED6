@@ -881,7 +881,7 @@ GENERE DES INSIGHTS selon ces categories:
 REGLES:
 - Maximum 5 insights au total
 - Priorise les actions a fort impact
-- Sois specifique avec les IDs d'articles concernes
+- CRITIQUE: Dans articleIds, tu DOIS retourner les IDs COMPLETS (UUID format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx) tels qu'ils apparaissent dans les donnees. NE TRONQUE PAS les IDs.
 - Le message doit etre motivant et actionnable
 - Suggere des actions concretes (baisser de X%, ajouter photos, creer lot, publier, mettre en vente, optimiser SEO)`;
 
