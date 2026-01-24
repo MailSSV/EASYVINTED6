@@ -987,142 +987,15 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
 
   return (
     <>
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @keyframes formDrawerSlideIn {
-          0% { transform: translateX(100%) rotateY(-18deg) scale(0.92); opacity: 0.7; }
-          60% { transform: translateX(-2%) rotateY(2deg) scale(1.01); opacity: 1; }
-          100% { transform: translateX(0) rotateY(0deg) scale(1); opacity: 1; }
-        }
-
-        /* SPECTACULAIRE EFFET DE FERMETURE - VORTEX QUANTUM */
-        @keyframes formDrawerSlideOut {
-          0% {
-            transform: translateX(0) scale(1) rotateY(0deg) rotateZ(0deg);
-            opacity: 1;
-            filter: blur(0px) brightness(1) saturate(1);
-            clip-path: inset(0 0 0 0 round 0px);
-          }
-          15% {
-            transform: translateX(8px) scale(1.02) rotateY(-3deg) rotateZ(1deg);
-            opacity: 1;
-            filter: blur(0px) brightness(1.1) saturate(1.2);
-          }
-          30% {
-            transform: translateX(20px) scale(0.98) rotateY(8deg) rotateZ(-3deg);
-            opacity: 0.95;
-            filter: blur(1px) brightness(1.05) saturate(1.1);
-            clip-path: inset(0 0 0 0 round 8px);
-          }
-          50% {
-            transform: translateX(60px) scale(0.85) rotateY(20deg) rotateZ(5deg);
-            opacity: 0.7;
-            filter: blur(4px) brightness(0.95) saturate(0.8) hue-rotate(15deg);
-            clip-path: inset(2% 5% 2% 0 round 16px);
-          }
-          70% {
-            transform: translateX(110%) scale(0.6) rotateY(45deg) rotateZ(15deg);
-            opacity: 0.4;
-            filter: blur(10px) brightness(0.7) saturate(0.5) hue-rotate(30deg);
-            clip-path: inset(5% 10% 5% 0 round 24px);
-          }
-          85% {
-            transform: translateX(130%) scale(0.35) rotateY(70deg) rotateZ(25deg);
-            opacity: 0.15;
-            filter: blur(20px) brightness(0.4) saturate(0.2) hue-rotate(45deg);
-            clip-path: inset(15% 20% 15% 0 round 32px);
-          }
-          100% {
-            transform: translateX(150%) scale(0.1) rotateY(90deg) rotateZ(35deg);
-            opacity: 0;
-            filter: blur(30px) brightness(0) saturate(0) hue-rotate(60deg);
-            clip-path: inset(30% 40% 30% 0 round 50px);
-          }
-        }
-
-        @keyframes formContentFadeIn {
-          0% {
-            opacity: 0;
-            transform: translateY(30px) scale(0.95);
-            filter: blur(4px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0px);
-          }
-        }
-
-        @keyframes formContentFadeOut {
-          0% {
-            opacity: 1;
-            transform: translateY(0) scale(1) rotateX(0deg);
-            filter: blur(0px) brightness(1);
-          }
-          40% {
-            opacity: 0.8;
-            transform: translateY(-15px) scale(0.96) rotateX(-5deg);
-            filter: blur(2px) brightness(1.1);
-          }
-          100% {
-            opacity: 0;
-            transform: translateY(-50px) scale(0.8) rotateX(-15deg);
-            filter: blur(12px) brightness(1.3);
-          }
-        }
-
-        @keyframes formBackdropFadeIn {
-          0% { opacity: 0; backdrop-filter: blur(0px); }
-          100% { opacity: 1; backdrop-filter: blur(4px); }
-        }
-
-        @keyframes formBackdropFadeOut {
-          0% {
-            opacity: 1;
-            backdrop-filter: blur(4px);
-            background: rgba(0, 0, 0, 0.5);
-          }
-          50% {
-            backdrop-filter: blur(8px);
-            background: rgba(0, 0, 0, 0.3);
-          }
-          100% {
-            opacity: 0;
-            backdrop-filter: blur(0px);
-            background: rgba(0, 0, 0, 0);
-          }
-        }
-
-        .form-drawer-backdrop-enter { animation: formBackdropFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        .form-drawer-backdrop-exit { animation: formBackdropFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
-        .form-drawer-enter { animation: formDrawerSlideIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-        .form-drawer-exit {
-          animation: formDrawerSlideOut 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-          transform-origin: center right;
-        }
-        .form-drawer-content-item {
-          animation: formContentFadeIn 0.7s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
-          animation-delay: calc(var(--item-index) * 0.06s);
-        }
-        .form-drawer-content-item-exit {
-          animation: formContentFadeOut 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-          animation-delay: calc((7 - var(--item-index)) * 0.025s);
-          transform-origin: top center;
-        }
-      `,
-        }}
-      />
-
       <div
-        className={`fixed inset-0 bg-black/50 z-[60] ${!isClosing ? 'form-drawer-backdrop-enter' : 'form-drawer-backdrop-exit'} ${
+        className={`fixed inset-0 bg-black/50 z-[60] ${!isClosing ? 'backdrop-vortex-enter' : 'backdrop-vortex-exit'} ${
           isClosing ? 'pointer-events-none' : ''
         }`}
         onClick={handleClose}
       />
 
       <div
-        className={`fixed inset-y-0 right-0 w-full max-w-md bg-white z-[60] shadow-2xl ${!isClosing ? 'form-drawer-enter' : 'form-drawer-exit'}`}
+        className={`fixed inset-y-0 right-0 w-full max-w-md bg-white z-[60] shadow-2xl ${!isClosing ? 'drawer-vortex-enter' : 'drawer-vortex-exit'}`}
         style={{ perspective: '1000px' }}
       >
         <div className="h-full flex flex-col">
@@ -1145,7 +1018,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
               <div className="flex-1 overflow-y-auto">
                 <div className="p-5 space-y-5">
                   {/* Photos */}
-                  <div className={`space-y-4 ${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`} style={{ '--item-index': 0 } as React.CSSProperties}>
+                  <div className={`space-y-4 ${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 0 } as React.CSSProperties}>
                     <div className="bg-white rounded-3xl border-2 border-slate-200 overflow-hidden aspect-square relative">
                       {formData.photos.length > 0 ? (
                         <>
@@ -1384,7 +1257,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
                   {/* Form */}
                   <div className="space-y-5">
                     {/* Title */}
-                    <div className={`${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`} style={{ '--item-index': 1 } as React.CSSProperties}>
+                    <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 1 } as React.CSSProperties}>
                       <h3 className="text-xl font-bold text-slate-900 mb-1">
                         <input
                           type="text"
@@ -1402,7 +1275,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
                     </div>
 
                     {/* Description */}
-                    <div className={`${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`} style={{ '--item-index': 2 } as React.CSSProperties}>
+                    <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 2 } as React.CSSProperties}>
                       <h4 className="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-2">Description</h4>
                       <div className="px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl">
                         <textarea
@@ -1431,7 +1304,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
                     </div>
 
                     {/* Article Details Grid */}
-                    <div className={`grid grid-cols-2 gap-3 ${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`} style={{ '--item-index': 3 } as React.CSSProperties}>
+                    <div className={`grid grid-cols-2 gap-3 ${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 3 } as React.CSSProperties}>
                       <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <p className="text-[10px] uppercase tracking-wide text-slate-500 font-semibold mb-1">Marque</p>
                         <input
@@ -1530,7 +1403,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
 
                     {/* SEO & Marketing Section */}
                     <div
-                      className={`${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`}
+                      className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`}
                       style={{ '--item-index': 5 } as React.CSSProperties}
                     >
                       <button
@@ -1705,7 +1578,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
                     </div>
 
                     {/* Price */}
-                    <div className={`${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`} style={{ '--item-index': 6 } as React.CSSProperties}>
+                    <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 6 } as React.CSSProperties}>
                       <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
                         <p className="text-[10px] uppercase tracking-wide text-emerald-700 font-semibold mb-1">Prix *</p>
                         <div className="flex items-center">
@@ -1723,7 +1596,7 @@ export function ArticleFormDrawer({ isOpen, onClose, articleId, onSaved, suggest
                     </div>
 
                     {/* ✅ Shipping Simulator */}
-                    <div className={`${!isClosing ? 'form-drawer-content-item' : 'form-drawer-content-item-exit'}`} style={{ '--item-index': 7 } as React.CSSProperties}>
+                    <div className={`${!isClosing ? 'content-vortex-enter' : 'content-vortex-exit'}`} style={{ '--item-index': 7 } as React.CSSProperties}>
                       <button
                         type="button"
                         onClick={() => setShowShippingSimulator(!showShippingSimulator)}
