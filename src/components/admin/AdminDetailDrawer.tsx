@@ -193,7 +193,7 @@ export function AdminDetailDrawer({
       const timer = setTimeout(() => {
         setShouldRender(false);
         setIsClosing(false);
-      }, 400);
+      }, 600);
       return () => clearTimeout(timer);
     }
   }, [isOpen, shouldRender]);
@@ -395,42 +395,85 @@ export function AdminDetailDrawer({
             opacity: 1;
           }
         }
+
+        /* SPECTACULAIRE EFFET DE FERMETURE - VORTEX QUANTUM */
         @keyframes drawerSlideOut {
           0% {
             transform: translateX(0) scale(1) rotateY(0deg) rotateZ(0deg);
             opacity: 1;
-            filter: blur(0px);
+            filter: blur(0px) brightness(1) saturate(1);
+            clip-path: inset(0 0 0 0 round 0px);
           }
-          40% {
-            transform: translateX(30px) scale(0.98) rotateY(5deg) rotateZ(-2deg);
-            opacity: 0.8;
+          15% {
+            transform: translateX(8px) scale(1.02) rotateY(-3deg) rotateZ(1deg);
+            opacity: 1;
+            filter: blur(0px) brightness(1.1) saturate(1.2);
+          }
+          30% {
+            transform: translateX(20px) scale(0.98) rotateY(8deg) rotateZ(-3deg);
+            opacity: 0.95;
+            filter: blur(1px) brightness(1.05) saturate(1.1);
+            clip-path: inset(0 0 0 0 round 8px);
+          }
+          50% {
+            transform: translateX(60px) scale(0.85) rotateY(20deg) rotateZ(5deg);
+            opacity: 0.7;
+            filter: blur(4px) brightness(0.95) saturate(0.8) hue-rotate(15deg);
+            clip-path: inset(2% 5% 2% 0 round 16px);
+          }
+          70% {
+            transform: translateX(110%) scale(0.6) rotateY(45deg) rotateZ(15deg);
+            opacity: 0.4;
+            filter: blur(10px) brightness(0.7) saturate(0.5) hue-rotate(30deg);
+            clip-path: inset(5% 10% 5% 0 round 24px);
+          }
+          85% {
+            transform: translateX(130%) scale(0.35) rotateY(70deg) rotateZ(25deg);
+            opacity: 0.15;
+            filter: blur(20px) brightness(0.4) saturate(0.2) hue-rotate(45deg);
+            clip-path: inset(15% 20% 15% 0 round 32px);
           }
           100% {
-            transform: translateX(150%) scale(0.7) rotateY(25deg) rotateZ(8deg);
+            transform: translateX(150%) scale(0.1) rotateY(90deg) rotateZ(35deg);
             opacity: 0;
-            filter: blur(8px);
+            filter: blur(30px) brightness(0) saturate(0) hue-rotate(60deg);
+            clip-path: inset(30% 40% 30% 0 round 50px);
           }
         }
+
+        /* EFFET DE VAGUE SUR LE CONTENU */
         @keyframes contentFadeIn {
           0% {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px) scale(0.95);
+            filter: blur(4px);
           }
           100% {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1);
+            filter: blur(0px);
           }
         }
+
         @keyframes contentFadeOut {
           0% {
             opacity: 1;
-            transform: translateY(0) scale(1);
+            transform: translateY(0) scale(1) rotateX(0deg);
+            filter: blur(0px) brightness(1);
+          }
+          40% {
+            opacity: 0.8;
+            transform: translateY(-15px) scale(0.96) rotateX(-5deg);
+            filter: blur(2px) brightness(1.1);
           }
           100% {
             opacity: 0;
-            transform: translateY(-30px) scale(0.9);
+            transform: translateY(-50px) scale(0.8) rotateX(-15deg);
+            filter: blur(12px) brightness(1.3);
           }
         }
+
+        /* EFFET DISSOLUTION PROGRESSIVE DU BACKDROP */
         @keyframes backdropFadeIn {
           0% {
             opacity: 0;
@@ -441,35 +484,46 @@ export function AdminDetailDrawer({
             backdrop-filter: blur(4px);
           }
         }
+
         @keyframes backdropFadeOut {
           0% {
             opacity: 1;
             backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.5);
+          }
+          50% {
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.3);
           }
           100% {
             opacity: 0;
             backdrop-filter: blur(0px);
+            background: rgba(0, 0, 0, 0);
           }
         }
+
+        /* APPLICATION DES CLASSES */
         .drawer-backdrop-enter {
           animation: backdropFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .drawer-backdrop-exit {
-          animation: backdropFadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation: backdropFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
         .drawer-enter {
           animation: drawerSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
         .drawer-exit {
-          animation: drawerSlideOut 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+          animation: drawerSlideOut 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+          transform-origin: center right;
         }
         .drawer-content-item {
-          animation: contentFadeIn 0.6s ease-out forwards;
-          animation-delay: calc(var(--item-index) * 0.05s);
+          animation: contentFadeIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation-delay: calc(var(--item-index) * 0.06s);
         }
         .drawer-content-item-exit {
-          animation: contentFadeOut 0.25s ease-out forwards;
-          animation-delay: calc((5 - var(--item-index)) * 0.02s);
+          animation: contentFadeOut 0.35s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+          animation-delay: calc((5 - var(--item-index)) * 0.025s);
+          transform-origin: top center;
         }
       `}} />
 

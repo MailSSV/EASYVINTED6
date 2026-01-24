@@ -12,6 +12,8 @@ interface InventoryDrawerProps {
 const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLoadItem }) => {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isClosing, setIsClosing] = useState(false);
+  const [shouldRender, setShouldRender] = useState(false);
 
   const loadItems = () => {
     setItems(getInventory());
@@ -19,10 +21,26 @@ const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLo
 
   useEffect(() => {
     if (isOpen) {
+      setShouldRender(true);
+      setIsClosing(false);
       loadItems();
-      setSearchQuery(''); // Reset search when opening
+      setSearchQuery('');
+    } else if (shouldRender) {
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setShouldRender(false);
+        setIsClosing(false);
+      }, 600);
+      return () => clearTimeout(timer);
     }
-  }, [isOpen]);
+  }, [isOpen, shouldRender]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 50);
+  };
 
   const handleDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -47,18 +65,121 @@ const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLo
     );
   });
 
+  if (!shouldRender) return null;
+
   return (
     <>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes inventoryDrawerSlideIn {
+          0% {
+            transform: translateX(100%) rotateY(-15deg);
+            opacity: 0;
+          }
+          60% {
+            transform: translateX(-10px) rotateY(0deg);
+          }
+          100% {
+            transform: translateX(0) rotateY(0deg);
+            opacity: 1;
+          }
+        }
+
+        @keyframes inventoryDrawerSlideOut {
+          0% {
+            transform: translateX(0) scale(1) rotateY(0deg) rotateZ(0deg);
+            opacity: 1;
+            filter: blur(0px) brightness(1) saturate(1);
+            clip-path: inset(0 0 0 0 round 0px);
+          }
+          15% {
+            transform: translateX(8px) scale(1.02) rotateY(-3deg) rotateZ(1deg);
+            opacity: 1;
+            filter: blur(0px) brightness(1.1) saturate(1.2);
+          }
+          30% {
+            transform: translateX(20px) scale(0.98) rotateY(8deg) rotateZ(-3deg);
+            opacity: 0.95;
+            filter: blur(1px) brightness(1.05) saturate(1.1);
+            clip-path: inset(0 0 0 0 round 8px);
+          }
+          50% {
+            transform: translateX(60px) scale(0.85) rotateY(20deg) rotateZ(5deg);
+            opacity: 0.7;
+            filter: blur(4px) brightness(0.95) saturate(0.8) hue-rotate(15deg);
+            clip-path: inset(2% 5% 2% 0 round 16px);
+          }
+          70% {
+            transform: translateX(110%) scale(0.6) rotateY(45deg) rotateZ(15deg);
+            opacity: 0.4;
+            filter: blur(10px) brightness(0.7) saturate(0.5) hue-rotate(30deg);
+            clip-path: inset(5% 10% 5% 0 round 24px);
+          }
+          85% {
+            transform: translateX(130%) scale(0.35) rotateY(70deg) rotateZ(25deg);
+            opacity: 0.15;
+            filter: blur(20px) brightness(0.4) saturate(0.2) hue-rotate(45deg);
+            clip-path: inset(15% 20% 15% 0 round 32px);
+          }
+          100% {
+            transform: translateX(150%) scale(0.1) rotateY(90deg) rotateZ(35deg);
+            opacity: 0;
+            filter: blur(30px) brightness(0) saturate(0) hue-rotate(60deg);
+            clip-path: inset(30% 40% 30% 0 round 50px);
+          }
+        }
+
+        @keyframes inventoryBackdropFadeIn {
+          0% { opacity: 0; backdrop-filter: blur(0px); }
+          100% { opacity: 1; backdrop-filter: blur(4px); }
+        }
+
+        @keyframes inventoryBackdropFadeOut {
+          0% {
+            opacity: 1;
+            backdrop-filter: blur(4px);
+            background: rgba(0, 0, 0, 0.2);
+          }
+          50% {
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.1);
+          }
+          100% {
+            opacity: 0;
+            backdrop-filter: blur(0px);
+            background: rgba(0, 0, 0, 0);
+          }
+        }
+
+        .inventory-drawer-backdrop-enter {
+          animation: inventoryBackdropFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .inventory-drawer-backdrop-exit {
+          animation: inventoryBackdropFadeOut 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        .inventory-drawer-enter {
+          animation: inventoryDrawerSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .inventory-drawer-exit {
+          animation: inventoryDrawerSlideOut 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+          transform-origin: center right;
+        }
+      `}} />
+
       {/* Backdrop */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 transition-opacity animate-in fade-in" 
-          onClick={onClose}
-        />
-      )}
+      <div
+        className={`fixed inset-0 bg-black/20 z-40 ${
+          !isClosing ? 'inventory-drawer-backdrop-enter' : 'inventory-drawer-backdrop-exit'
+        } ${isClosing ? 'pointer-events-none' : ''}`}
+        onClick={handleClose}
+      />
 
       {/* Drawer */}
-      <div className={`fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div
+        className={`fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 flex flex-col ${
+          !isClosing ? 'inventory-drawer-enter' : 'inventory-drawer-exit'
+        }`}
+        style={{ perspective: '1000px' }}
+      >
         
         {/* Header Section */}
         <div className="bg-white border-b border-gray-100 z-10 shadow-sm">
@@ -79,7 +200,7 @@ const InventoryDrawer: React.FC<InventoryDrawerProps> = ({ isOpen, onClose, onLo
                   <ArchiveX size={20} />
                 </button>
               )}
-              <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
+              <button onClick={handleClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
                 <X size={20} />
               </button>
             </div>
