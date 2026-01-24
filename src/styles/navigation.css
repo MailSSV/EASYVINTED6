@@ -12,6 +12,17 @@
   }
 }
 
+@keyframes slideUpFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+}
+
 @keyframes fadeInScale {
   from {
     opacity: 0;
@@ -54,6 +65,10 @@
   z-index: 50;
   animation: slideDownFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: top;
+}
+
+.dropdown-menu.closing {
+  animation: slideUpFadeOut 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* Version large pour le menu admin */

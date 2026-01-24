@@ -31,6 +31,9 @@ export function AppLayout({ children }: AppLayoutProps) {
   const [showKellyPanel, setShowKellyPanel] = useState(false);
   const [kellyInsightsCount, setKellyInsightsCount] = useState(0);
   const [headerScrolled, setHeaderScrolled] = useState(false);
+  const [closingUserMenu, setClosingUserMenu] = useState(false);
+  const [closingAdminMenu, setClosingAdminMenu] = useState(false);
+  const [closingSellerMenu, setClosingSellerMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const adminMenuRef = useRef<HTMLDivElement>(null);
   const sellerMenuRef = useRef<HTMLDivElement>(null);
@@ -51,16 +54,44 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const closeMenuWithAnimation = (menuType: 'user' | 'admin' | 'seller') => {
+    if (menuType === 'user') {
+      setClosingUserMenu(true);
+      setTimeout(() => {
+        setShowUserMenu(false);
+        setClosingUserMenu(false);
+      }, 250);
+    } else if (menuType === 'admin') {
+      setClosingAdminMenu(true);
+      setTimeout(() => {
+        setShowAdminMenu(false);
+        setClosingAdminMenu(false);
+      }, 250);
+    } else if (menuType === 'seller') {
+      setClosingSellerMenu(true);
+      setTimeout(() => {
+        setShowSellerMenu(false);
+        setClosingSellerMenu(false);
+      }, 250);
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
+        if (showUserMenu && !closingUserMenu) {
+          closeMenuWithAnimation('user');
+        }
       }
       if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
-        setShowAdminMenu(false);
+        if (showAdminMenu && !closingAdminMenu) {
+          closeMenuWithAnimation('admin');
+        }
       }
       if (sellerMenuRef.current && !sellerMenuRef.current.contains(event.target as Node)) {
-        setShowSellerMenu(false);
+        if (showSellerMenu && !closingSellerMenu) {
+          closeMenuWithAnimation('seller');
+        }
       }
     }
 
@@ -71,7 +102,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showUserMenu, showAdminMenu, showSellerMenu]);
+  }, [showUserMenu, showAdminMenu, showSellerMenu, closingUserMenu, closingAdminMenu, closingSellerMenu]);
 
   async function loadDefaultSeller() {
     if (!user) return;
@@ -156,7 +187,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       if (selectedSeller) {
         setDefaultSeller(selectedSeller);
       }
-      setShowSellerMenu(false);
+      closeMenuWithAnimation('seller');
     } catch (error) {
       console.error('Error setting default seller:', error);
     }
@@ -213,7 +244,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                       </button>
 
                       {showSellerMenu && (
-                        <div className="dropdown-menu">
+                        <div className={`dropdown-menu ${closingSellerMenu ? 'closing' : ''}`}>
                           <div className="px-4 py-2 border-b border-gray-100">
                             <p className="text-xs font-bold text-gray-900 uppercase tracking-wider">Vendeur par défaut</p>
                           </div>
@@ -305,13 +336,13 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </button>
 
                 {showAdminMenu && (
-                  <div className="dropdown-menu dropdown-menu-large">
+                  <div className={`dropdown-menu dropdown-menu-large ${closingAdminMenu ? 'closing' : ''}`}>
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-xs font-bold text-gray-900 uppercase tracking-wider">Actions</p>
                     </div>
                     <Link
                       to="/admin/unified"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 transition-all duration-200 border-b border-gray-100 group hover:scale-[1.02]"
                       style={{ animationDelay: '0ms' }}
                     >
@@ -320,7 +351,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Link>
                     <Link
                       to="/planner"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '40ms' }}
                     >
@@ -329,7 +360,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Link>
                     <Link
                       to="/admin/publisher"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '80ms' }}
                     >
@@ -338,7 +369,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Link>
                     <Link
                       to="/admin/agent-publisher-ia"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '120ms' }}
                     >
@@ -348,7 +379,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
                     <Link
                       to="/admin/publication-monitor"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '160ms' }}
                     >
@@ -357,7 +388,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Link>
                     <Link
                       to="/analytics"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '200ms' }}
                     >
@@ -370,7 +401,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </div>
                     <Link
                       to="/profile"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '240ms' }}
                     >
@@ -383,7 +414,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                     </Link>
                     <Link
                       to="/family"
-                      onClick={() => setShowAdminMenu(false)}
+                      onClick={() => closeMenuWithAnimation('admin')}
                       className="menu-item flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 group hover:scale-[1.02]"
                       style={{ animationDelay: '280ms' }}
                     >
@@ -408,7 +439,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 </button>
 
                 {showUserMenu && (
-                  <div className="dropdown-menu">
+                  <div className={`dropdown-menu ${closingUserMenu ? 'closing' : ''}`}>
                     <div className="px-4 py-2 border-b border-gray-100">
                       <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
                     </div>
