@@ -156,7 +156,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-110 transition-transform duration-200">
               <Palette size={20} />
             </div>
-            <span className="text-xs font-semibold text-gray-700 text-center">Smart Bg</span>
+            <span className="text-xs font-semibold text-gray-700 text-center">Fond</span>
           </button>
 
           <button
@@ -167,7 +167,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
             <div className="p-2 bg-blue-50 text-blue-600 rounded-lg group-hover:scale-110 transition-transform duration-200">
               <Store size={20} />
             </div>
-            <span className="text-xs font-semibold text-gray-700">Place</span>
+            <span className="text-xs font-semibold text-gray-700">Mis en situation</span>
           </button>
 
           <button
@@ -178,7 +178,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
             <div className="p-2 bg-pink-50 text-pink-600 rounded-lg group-hover:scale-110 transition-transform duration-200">
               <User size={20} />
             </div>
-            <span className="text-xs font-semibold text-gray-700">Try-On</span>
+            <span className="text-xs font-semibold text-gray-700">Porté</span>
           </button>
 
           <button
@@ -189,7 +189,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
             <div className="p-2 bg-green-50 text-green-600 rounded-lg group-hover:scale-110 transition-transform duration-200">
               <Shirt size={20} />
             </div>
-            <span className="text-xs font-semibold text-gray-700">Fold</span>
+            <span className="text-xs font-semibold text-gray-700">Plié</span>
           </button>
         </div>
 
