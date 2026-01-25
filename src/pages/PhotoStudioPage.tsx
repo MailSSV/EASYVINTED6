@@ -454,12 +454,7 @@ export function PhotoStudioPage() {
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                     <div className="space-y-4">
                       <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
-                        <h3 className="font-bold text-amber-800 mb-2">Detecteur de Defauts IA</h3>
-                        <p className="text-sm text-amber-700">
-                          Analysez automatiquement votre vetement pour detecter taches, trous, bouloches,
-                          decoloration et autres imperfections. L'IA vous donnera un score d'etat et des
-                          conseils pour votre annonce.
-                        </p>
+                        
                       </div>
                       {currentImage && (
                         <DefectDetector
