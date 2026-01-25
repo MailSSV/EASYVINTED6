@@ -514,12 +514,7 @@ export function ImageEditor({
                 </div>
               )}
 
-              {!showComparison && (
-                <div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 z-[5]">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Magik-AI</span>
-                </div>
-              )}
+             
 
               {processing && (
                 <div className="absolute inset-0 flex items-center justify-center z-[10]">
