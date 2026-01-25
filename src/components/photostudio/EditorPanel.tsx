@@ -116,17 +116,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
         )}
       </div>
 
-      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
-        <div className="flex items-start gap-3">
-          <Sparkles className="text-orange-600 shrink-0 mt-0.5" size={20} />
-          <div>
-            <h4 className="font-semibold text-orange-900 text-sm mb-1">Fonctionnalité limitée avec OpenAI</h4>
-            <p className="text-orange-800 text-xs leading-relaxed">
-              L'édition d'images n'est pas disponible avec OpenAI. Pour utiliser cette fonctionnalité, configurez Gemini en ajoutant VITE_GEMINI_API_KEY dans votre fichier .env.
-            </p>
-          </div>
-        </div>
-      </div>
+      
 
       <div className="bg-blue-50/50 rounded-xl p-6 border border-blue-100 mb-6">
         <div className="flex justify-between items-center mb-6">
