@@ -98,7 +98,7 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
               </div>
               <div className="flex-1">
                 <h3 className="text-blue-900 font-bold text-base mb-2 flex items-center gap-2">
-                  Studio Photo IA - Gemini 2.5 Flash Image
+                  Studio Photo IA
                 </h3>
                 <p className="text-blue-800 text-sm leading-relaxed">
                   Décrivez les modifications que vous souhaitez. Gemini peut remplacer l'arrière-plan (fond blanc studio, béton gris, bois clair), améliorer la luminosité, centrer le produit, ou placer le vêtement à plat. L'IA préserve l'aspect original du produit.
