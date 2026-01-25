@@ -26,7 +26,7 @@ import { ImageEditor } from '../components/ImageEditor';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { COLORS, MATERIALS } from '../constants/articleAttributes';
-import { analyzeProductImage } from '../lib/openaiService';
+import { analyzeProductImage } from '../lib/geminiService';
 import VirtualAgent from '../components/VirtualAgent';
 import { parseSuggestionValue } from '../lib/geminiService';
 import { compressImage, formatFileSize } from '../lib/imageCompression';

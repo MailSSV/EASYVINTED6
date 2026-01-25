@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { analyzeProductImage, editProductImage, ProductData } from '../lib/openaiService';
+import { analyzeProductImage, editProductImage, ProductData } from '../lib/geminiService';
 import { ImageUploader } from '../components/photostudio/ImageUploader';
 import { ProductDetails } from '../components/photostudio/ProductDetails';
 import { EditorPanel } from '../components/photostudio/EditorPanel';
