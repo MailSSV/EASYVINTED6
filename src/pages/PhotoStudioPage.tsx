@@ -478,7 +478,21 @@ export function PhotoStudioPage() {
                   </div>
                 ) : activeTab === 'tryon' ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                   
+                    <div className="space-y-4">
+                      <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-4 border border-rose-200">
+                        <h3 className="font-bold text-rose-800 mb-2">Essayage Virtuel IA</h3>
+                        <p className="text-sm text-rose-700">
+                          Visualisez comment le vetement s'adapte sur un mannequin virtuel.
+                          Selectionnez une morphologie et voyez le rendu realiste.
+                        </p>
+                      </div>
+                      {currentImage && (
+                        <VirtualTryOn
+                          imageBase64={currentImage}
+                          mimeType={mimeType}
+                        />
+                      )}
+                    </div>
                   </div>
                 ) : null}
               </div>
