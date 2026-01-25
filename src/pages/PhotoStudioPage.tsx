@@ -481,10 +481,7 @@ export function PhotoStudioPage() {
                     <div className="space-y-4">
                       <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-4 border border-rose-200">
                         <h3 className="font-bold text-rose-800 mb-2">Essayage Virtuel IA</h3>
-                        <p className="text-sm text-rose-700">
-                          Visualisez comment le vetement s'adapte sur un mannequin virtuel.
-                          Selectionnez une morphologie et voyez le rendu realiste.
-                        </p>
+                       
                       </div>
                       {currentImage && (
                         <VirtualTryOn
