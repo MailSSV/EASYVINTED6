@@ -59,8 +59,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, loading, onSa
           </div>
         </div>
         <div className="text-center space-y-2">
-           <p className="text-gray-900 font-semibold text-lg">Analyzing your product...</p>
-           <p className="text-gray-500 text-sm">Identifying items and drafting content.</p>
+           <p className="text-gray-900 font-semibold text-lg">Analyse de ton produit...</p>
+           <p className="text-gray-500 text-sm">Identification des articles et rédaction du contenu.</p>
         </div>
       </div>
     );
@@ -69,7 +69,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, loading, onSa
   if (!products || products.length === 0) return (
     <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 p-8">
       <Box size={48} className="mb-4 opacity-50" />
-      <p>Select a product to see details here.</p>
+      <p>Sélectionne un produit pour voir les détails ici.</p>
     </div>
   );
 
@@ -80,8 +80,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, loading, onSa
       {/* Action Bar */}
       <div className="flex justify-between items-center sticky top-0 bg-gray-50/95 backdrop-blur-sm z-20 py-2 border-b border-gray-200/50">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">Product Analysis</h2>
-          <p className="text-xs text-gray-500">Found {products.length} item{products.length !== 1 ? 's' : ''}</p>
+          <h2 className="text-lg font-bold text-gray-900">Analyse du produit</h2>
+          <p className="text-xs text-gray-500">Trouvé {products.length} article{products.length !== 1 ? 's' : ''}</p>
         </div>
         
         {onSave && (
@@ -97,7 +97,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, loading, onSa
             }`}
           >
             {isSaved ? <Check size={16} /> : <PackagePlus size={16} />}
-            {isSaved ? 'Saved!' : `Save (${selectedCount})`}
+            {isSaved ? 'Enregistré !' : `Enregistrer (${selectedCount})`}
           </button>
         )}
       </div>
@@ -119,7 +119,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ products, loading, onSa
                 className="flex-1 cursor-pointer"
                 onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
               >
-                <h3 className="font-bold text-gray-900">{product.title || 'Untitled Product'}</h3>
+                <h3 className="font-bold text-gray-900">{product.title || 'Produit sans titre'}</h3>
                 <div className="flex items-center gap-2 mt-1">
                    <span className="text-xs font-medium px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full">{product.category}</span>
                    <span className="text-xs font-medium text-green-600 flex items-center"><DollarSign size={10} />{product.priceEstimate}</span>
@@ -170,7 +170,7 @@ const SingleProductView: React.FC<{
       <button 
         onClick={() => handleCopy(text, fieldId)}
         className="text-gray-400 hover:text-indigo-600 transition-colors"
-        title={`Copy ${label}`}
+        title={`Copier ${label}`}
       >
         {copiedField === fieldId ? <Check size={12} className="text-green-500" /> : <Copy size={12} />}
       </button>
@@ -182,33 +182,33 @@ const SingleProductView: React.FC<{
       {/* Editable Fields Section (Title & Category & Price) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="col-span-1 sm:col-span-2">
-           <LabelWithCopy label="Product Title" text={data.title || ''} fieldId="title" />
+           <LabelWithCopy label="Titre du produit" text={data.title || ''} fieldId="title" />
            <input
              type="text"
              value={data.title || ''}
              onChange={(e) => onUpdate?.({ ...data, title: e.target.value })}
              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm"
-             placeholder="Product Name"
+             placeholder="Nom du produit"
            />
         </div>
         <div>
-           <LabelWithCopy label="Category" text={data.category || ''} fieldId="category" />
+           <LabelWithCopy label="Catégorie" text={data.category || ''} fieldId="category" />
            <input
              type="text"
              value={data.category || ''}
              onChange={(e) => onUpdate?.({ ...data, category: e.target.value })}
              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm"
-             placeholder="e.g. Men's T-Shirt"
+             placeholder="ex : T-shirt homme"
            />
         </div>
          <div>
-           <LabelWithCopy label="Price Estimate" text={data.priceEstimate || ''} fieldId="price" />
+           <LabelWithCopy label="Estimation du prix" text={data.priceEstimate || ''} fieldId="price" />
            <input
              type="text"
              value={data.priceEstimate || ''}
              onChange={(e) => onUpdate?.({ ...data, priceEstimate: e.target.value })}
              className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all shadow-sm"
-             placeholder="$0.00"
+             placeholder="0,00 €"
            />
         </div>
       </div>
@@ -222,7 +222,7 @@ const SingleProductView: React.FC<{
            <button 
               onClick={() => handleCopy(data.description, 'desc')}
               className="text-gray-400 hover:text-indigo-600 transition-colors"
-              title="Copy Description"
+              title="Copier la description"
             >
               {copiedField === 'desc' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
             </button>
@@ -231,7 +231,7 @@ const SingleProductView: React.FC<{
           value={data.description || ''}
           onChange={(e) => onUpdate?.({ ...data, description: e.target.value })}
           className="w-full bg-transparent border-none p-0 text-sm text-gray-700 leading-relaxed focus:ring-0 resize-y min-h-[100px]"
-          placeholder="Enter product description..."
+          placeholder="Saisis la description du produit..."
         />
       </div>
 
@@ -239,12 +239,12 @@ const SingleProductView: React.FC<{
       <div>
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-            <Tag size={14} /> Key Features
+            <Tag size={14} /> Caractéristiques clés
           </h3>
           <button 
               onClick={() => handleCopy((data.features || []).join('\n'), 'features')}
               className="text-gray-400 hover:text-indigo-600 transition-colors"
-              title="Copy Features List"
+              title="Copier la liste des caractéristiques"
             >
               {copiedField === 'features' ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
             </button>
@@ -264,7 +264,7 @@ const SingleProductView: React.FC<{
         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 overflow-hidden">
           <div className="p-3 border-b border-indigo-100 bg-white/50 backdrop-blur-sm">
              <h3 className="text-xs font-bold text-indigo-900 flex items-center gap-2">
-               <span className="bg-indigo-600 text-white px-1.5 py-0.5 rounded text-[10px]">AI</span> Marketing Hub
+               <span className="bg-indigo-600 text-white px-1.5 py-0.5 rounded text-[10px]">IA</span> Hub marketing
              </h3>
           </div>
           
@@ -274,7 +274,7 @@ const SingleProductView: React.FC<{
               onClick={() => setMarketingTab('social')}
               className={`flex-1 py-2 text-xs font-medium flex justify-center items-center gap-2 ${marketingTab === 'social' ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
             >
-              <Instagram size={14} /> Social
+              <Instagram size={14} /> Réseaux sociaux
             </button>
             <button 
               onClick={() => setMarketingTab('email')}
@@ -295,11 +295,11 @@ const SingleProductView: React.FC<{
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Caption</span>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Légende</span>
                     <button 
                       onClick={() => handleCopy(data.marketing!.instagramCaption, 'caption')}
                       className="text-indigo-400 hover:text-indigo-600"
-                      title="Copy Caption"
+                      title="Copier la légende"
                     >
                        {copiedField === 'caption' ? <Check size={12} /> : <Copy size={12} />}
                     </button>
@@ -314,7 +314,7 @@ const SingleProductView: React.FC<{
                     <button 
                       onClick={() => handleCopy(data.marketing!.hashtags.map(t => `#${t}`).join(' '), 'hashtags')}
                       className="text-indigo-400 hover:text-indigo-600"
-                      title="Copy Hashtags"
+                      title="Copier les hashtags"
                     >
                        {copiedField === 'hashtags' ? <Check size={12} /> : <Copy size={12} />}
                     </button>
@@ -333,11 +333,11 @@ const SingleProductView: React.FC<{
             {marketingTab === 'email' && (
               <div>
                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Email Draft</span>
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase">Brouillon d’email</span>
                     <button 
                       onClick={() => handleCopy(data.marketing!.salesEmail, 'email')}
                       className="text-indigo-400 hover:text-indigo-600"
-                      title="Copy Email"
+                      title="Copier l’email"
                     >
                        {copiedField === 'email' ? <Check size={12} /> : <Copy size={12} />}
                     </button>
@@ -351,11 +351,11 @@ const SingleProductView: React.FC<{
             {marketingTab === 'seo' && (
                <div>
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-[10px] font-semibold text-gray-500 uppercase block">Keywords</span>
+                  <span className="text-[10px] font-semibold text-gray-500 uppercase block">Mots-clés</span>
                   <button 
                       onClick={() => handleCopy(data.marketing!.seoKeywords.join(', '), 'seo')}
                       className="text-indigo-400 hover:text-indigo-600"
-                      title="Copy Keywords"
+                      title="Copier les mots-clés"
                     >
                        {copiedField === 'seo' ? <Check size={12} /> : <Copy size={12} />}
                     </button>
