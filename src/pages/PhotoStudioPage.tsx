@@ -453,9 +453,7 @@ export function PhotoStudioPage() {
                 ) : activeTab === 'defects' ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                     <div className="space-y-4">
-                      <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200">
-                        
-                      </div>
+                     
                       {currentImage && (
                         <DefectDetector
                           imageBase64={currentImage}
