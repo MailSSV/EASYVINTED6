@@ -14,6 +14,14 @@ const getAI = () => {
   return ai;
 };
 
+// ✅ Shared constraint vocabulary (re-used across image features)
+const HUMAN_IPHONE_CONSTRAINTS =
+  "Output must look like an ordinary iPhone photo taken by a real person: natural ambient light, slightly imperfect framing, faithful colors, mild sensor grain, no studio look, no editorial styling, no seamless/gradient background, no HDR/glow, no over-sharpening, no AI-smoothed/plastic textures, no obvious AI artifacts. Keep it believable.";
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 export interface ProductData {
   title: string;
   description: string;
@@ -207,10 +215,6 @@ export const editProductImage = async (
 ): Promise<string> => {
   const model = "gemini-2.5-flash-image";
 
-  // ✅ Global, low-token "human iPhone photo" constraint (single source of truth)
-  const HUMAN_IPHONE_CONSTRAINTS =
-    "Output must look like an ordinary iPhone photo taken at home: natural ambient light, simple imperfect framing, faithful colors, slight sensor grain, no studio look, no editorial styling, no perfect seamless background, no HDR/glow, no AI artifacts, no over-sharpening. Keep it boring and believable.";
-
   const enhancedInstruction = `${instruction}
 ${HUMAN_IPHONE_CONSTRAINTS}
 Preserve product details perfectly (logos/text/labels), keep product as focal point, no distortions.`;
@@ -255,7 +259,7 @@ Preserve product details perfectly (logos/text/labels), keep product as focal po
 
     if (error?.message?.includes("API key")) {
       throw new Error(
-        "Clé API Gemini invalide ou manquante. Vérifiez VITE_GEMINI_API_KEY dans votre fichier .env"
+        "Clé API Gemini invalide ou manquante. Vérifiez votre .env (VITE_GEMINI_API_KEY)."
       );
     }
 
@@ -542,7 +546,7 @@ export interface DefectAnalysis {
   overallConditionScore: number;
   defects: {
     type: string;
-    severity: 'minor' | 'moderate' | 'severe';
+    severity: "minor" | "moderate" | "severe";
     location: string;
     description: string;
     impactOnPrice: number;
@@ -617,7 +621,13 @@ Si aucun defaut n'est visible, retourne un tableau vide pour defects et un score
                   description: { type: Type.STRING },
                   impactOnPrice: { type: Type.NUMBER },
                 },
-                required: ["type", "severity", "location", "description", "impactOnPrice"],
+                required: [
+                  "type",
+                  "severity",
+                  "location",
+                  "description",
+                  "impactOnPrice",
+                ],
               },
             },
             recommendations: {
@@ -627,7 +637,13 @@ Si aucun defaut n'est visible, retourne un tableau vide pour defects et un score
             suggestedDisclosure: { type: Type.STRING },
             estimatedCondition: { type: Type.STRING },
           },
-          required: ["overallConditionScore", "defects", "recommendations", "suggestedDisclosure", "estimatedCondition"],
+          required: [
+            "overallConditionScore",
+            "defects",
+            "recommendations",
+            "suggestedDisclosure",
+            "estimatedCondition",
+          ],
         },
       },
     });
@@ -639,7 +655,10 @@ Si aucun defaut n'est visible, retourne un tableau vide pour defects et un score
   } catch (error: any) {
     console.error("Defect analysis failed:", error);
 
-    if (error?.message?.includes("quota") || error?.message?.includes("RESOURCE_EXHAUSTED")) {
+    if (
+      error?.message?.includes("quota") ||
+      error?.message?.includes("RESOURCE_EXHAUSTED")
+    ) {
       throw new Error("Quota Gemini depasse. Veuillez reessayer plus tard.");
     }
 
@@ -650,30 +669,73 @@ Si aucun defaut n'est visible, retourne un tableau vide pour defects et un score
 export const generateVirtualTryOn = async (
   base64Image: string,
   mimeType: string,
-  gender: 'female' | 'male' | 'neutral' = 'female'
+  gender: "female" | "male" | "neutral" = "female"
 ): Promise<string> => {
   const model = "gemini-2.5-flash-image";
 
-  const genderPrompts = {
-    female: "a slim female fashion model with natural pose",
-    male: "a fit male fashion model with confident pose",
-    neutral: "a slim androgynous model with elegant pose"
-  };
+  // ✅ Replace model vibes with "real person" vibes
+  const genderSubjects = {
+    female: "a real adult woman (everyday body, not a model)",
+    male: "a real adult man (everyday body, not a model)",
+    neutral: "a real adult person (everyday body, not a model)",
+  } as const;
 
-  const prompt = `Transform this product photo into a lifestyle fashion photo showing the clothing item worn by ${genderPrompts[gender]}.
+  // ✅ Randomize “everyday context” to reduce AI repetition
+  const contexts = [
+    "mirror selfie in a bathroom (phone covering the face), casual posture, slightly imperfect angle",
+    "quick mirror selfie in a hallway near a door, casual posture, slightly off-center framing",
+    "standing near a plain door or wardrobe in a bedroom, face out of frame, relaxed posture",
+    "mirror selfie in a corridor/entryway, phone covering the face, slightly tilted horizon",
+    "simple room background (bedroom/living room), crop from neck down, natural light from a window",
+  ] as const;
 
-REQUIREMENTS:
-- Keep the EXACT same clothing item with all details preserved (brand logos, patterns, textures, colors)
-- Model should be standing naturally, similar to a Zara or H&M catalog photo
-- Professional studio lighting with soft shadows
-- Clean white or light gray gradient background
-- Model face can be partially visible or cropped at chin level
-- Show the item's fit and drape realistically
-- Natural body proportions, not exaggerated
-- The clothing should look exactly as it would in real life when worn
-- Keep it photorealistic, not illustrated
+  const chosenContext = pickRandom([...contexts]);
 
-OUTPUT: High quality fashion catalog style photo`;
+  const prompt = `
+Transform this product photo into a REALISTIC casual iPhone photo showing the clothing item worn by ${genderSubjects[gender]}.
+
+ABSOLUTE PRIORITY:
+- Keep the EXACT SAME clothing item. Preserve ALL details perfectly (logos, labels, stitching, textures, patterns, colors).
+- The output must NOT look like a professional shoot, catalog, or studio photo.
+
+SCENE / CONTEXT (varying on purpose):
+- ${chosenContext}
+
+VINTED-FRIENDLY iPHONE STYLE:
+- Looks like a quick iPhone photo taken by a human (UGC), not a brand campaign.
+- Slight imperfections are REQUIRED: not perfectly centered, not perfectly straight, slightly imperfect framing.
+- Not too sharp: mild motion blur or slight softness acceptable, subtle sensor noise/grain, no over-sharpening.
+- Natural ambient lighting (window light / indoor warm light). No studio lighting, no softbox look.
+- No perfect HDR, no glow, no "too clean" contrast.
+
+FRAMING / PRIVACY (STRICT):
+- NEVER show the full face.
+  - Preferred: phone covering the face OR crop from neck down OR face outside frame.
+  - If any face appears, it must be obscured (phone/crop/blur) and NOT identifiable.
+- Focus on garment fit and drape (torso/legs), but keep it casual and believable.
+
+BACKGROUND (ANTI-CATALOG):
+- Everyday, non-idealized background: bathroom/hallway/door/wardrobe/plain wall/normal room.
+- Must not look like a studio, fashion catalog, or staged set.
+- Background should remain simple enough to keep the item readable, but not "seamless".
+
+REALISM RULES:
+- Natural body proportions, no mannequin look, no exaggerated curves.
+- Avoid perfect poses; relaxed posture.
+- No editorial styling, no "campaign" accessories.
+
+NEGATIVE CONSTRAINTS (do not do):
+- No studio backdrop, no white/gray gradient background, no catalog composition.
+- No "Zara/H&M model" aesthetic.
+- No plastic skin, no AI-smoothed textures, no hyper-perfection.
+- No face visible/identifiable.
+
+GLOBAL:
+${HUMAN_IPHONE_CONSTRAINTS}
+
+OUTPUT:
+- Photorealistic casual iPhone-like photo (UGC), realistic and imperfect, item still clearly visible.
+  `.trim();
 
   try {
     const response = await getAI().models.generateContent({
@@ -704,8 +766,13 @@ OUTPUT: High quality fashion catalog style photo`;
   } catch (error: any) {
     console.error("Virtual try-on failed:", error);
 
-    if (error?.message?.includes("quota") || error?.message?.includes("RESOURCE_EXHAUSTED")) {
-      throw new Error("Quota Gemini depasse. L'essayage virtuel necessite un compte avec facturation activee.");
+    if (
+      error?.message?.includes("quota") ||
+      error?.message?.includes("RESOURCE_EXHAUSTED")
+    ) {
+      throw new Error(
+        "Quota Gemini depasse. L'essayage virtuel necessite un compte avec facturation activee."
+      );
     }
 
     throw new Error("Impossible de generer l'essayage virtuel pour le moment.");
@@ -713,8 +780,15 @@ OUTPUT: High quality fashion catalog style photo`;
 };
 
 export interface ProactiveInsight {
-  type: 'price_drop' | 'seasonal' | 'stale' | 'incomplete' | 'opportunity' | 'bundle' | 'seo_optimization';
-  priority: 'high' | 'medium' | 'low';
+  type:
+    | "price_drop"
+    | "seasonal"
+    | "stale"
+    | "incomplete"
+    | "opportunity"
+    | "bundle"
+    | "seo_optimization";
+  priority: "high" | "medium" | "low";
   title: string;
   message: string;
   actionLabel: string;
@@ -726,7 +800,9 @@ export interface ProactiveInsight {
   };
 }
 
-export const optimizeArticleSEO = async (article: any): Promise<{
+export const optimizeArticleSEO = async (
+  article: any
+): Promise<{
   seo_keywords: string[];
   hashtags: string[];
   search_terms: string[];
@@ -766,18 +842,9 @@ RÈGLES:
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            seo_keywords: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-            },
-            hashtags: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-            },
-            search_terms: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-            },
+            seo_keywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+            hashtags: { type: Type.ARRAY, items: { type: Type.STRING } },
+            search_terms: { type: Type.ARRAY, items: { type: Type.STRING } },
           },
           required: ["seo_keywords", "hashtags", "search_terms"],
         },
@@ -792,18 +859,10 @@ RÈGLES:
         search_terms: parsed.search_terms || [],
       };
     }
-    return {
-      seo_keywords: [],
-      hashtags: [],
-      search_terms: [],
-    };
+    return { seo_keywords: [], hashtags: [], search_terms: [] };
   } catch (error: any) {
     console.error("SEO optimization failed:", error);
-    return {
-      seo_keywords: [],
-      hashtags: [],
-      search_terms: [],
-    };
+    return { seo_keywords: [], hashtags: [], search_terms: [] };
   }
 };
 
@@ -815,16 +874,23 @@ export const generateProactiveInsights = async (
   const model = "gemini-2.5-flash";
 
   const seasonMap: Record<number, string> = {
-    1: 'winter', 2: 'winter', 3: 'spring',
-    4: 'spring', 5: 'spring', 6: 'summer',
-    7: 'summer', 8: 'summer', 9: 'autumn',
-    10: 'autumn', 11: 'autumn', 12: 'winter'
+    1: "winter",
+    2: "winter",
+    3: "spring",
+    4: "spring",
+    5: "spring",
+    6: "summer",
+    7: "summer",
+    8: "summer",
+    9: "autumn",
+    10: "autumn",
+    11: "autumn",
+    12: "winter",
   };
   const currentSeason = seasonMap[currentMonth];
-
   const nextMonthSeason = seasonMap[(currentMonth % 12) + 1];
 
-  const articlesSummary = articles.map(a => ({
+  const articlesSummary = articles.map((a) => ({
     id: a.id,
     title: a.title,
     brand: a.brand,
@@ -845,12 +911,14 @@ export const generateProactiveInsights = async (
 
   const soldSummary = {
     totalSold: soldArticles.length,
-    averagePrice: soldArticles.length > 0
-      ? soldArticles.reduce((sum, a) => sum + (a.sold_price || a.price), 0) / soldArticles.length
-      : 0,
-    recentSales: soldArticles.filter(a => {
+    averagePrice:
+      soldArticles.length > 0
+        ? soldArticles.reduce((sum, a) => sum + (a.sold_price || a.price), 0) /
+          soldArticles.length
+        : 0,
+    recentSales: soldArticles.filter((a) => {
       const soldDate = new Date(a.sold_at || a.updated_at);
-      return (Date.now() - soldDate.getTime()) < 7 * 24 * 60 * 60 * 1000;
+      return Date.now() - soldDate.getTime() < 7 * 24 * 60 * 60 * 1000;
     }).length,
   };
 
@@ -902,10 +970,7 @@ REGLES:
                   title: { type: Type.STRING },
                   message: { type: Type.STRING },
                   actionLabel: { type: Type.STRING },
-                  articleIds: {
-                    type: Type.ARRAY,
-                    items: { type: Type.STRING },
-                  },
+                  articleIds: { type: Type.ARRAY, items: { type: Type.STRING } },
                   suggestedAction: {
                     type: Type.OBJECT,
                     properties: {
