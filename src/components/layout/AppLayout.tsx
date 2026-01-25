@@ -15,6 +15,7 @@ import {
   Bot,
   Activity,
   Check,
+  Camera,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { ShoppingBag } from "lucide-react";
@@ -298,6 +299,15 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <LayoutDashboard className="w-4 h-4 transition-transform group-hover:scale-110" />
                   Mon dressing
                 </Link>
+                <Link
+                  to="/photo-studio"
+                  className={`nav-button flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                    isActive("/photo-studio") ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  <Camera className="w-4 h-4 transition-transform group-hover:scale-110" />
+                  Photo Studio
+                </Link>
               </nav>
             </div>
 
@@ -515,6 +525,18 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
               Mon dressing
             </Link>
 
+            <Link
+              to="/photo-studio"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
+                isActive("/photo-studio") ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
+              }`}
+              style={{ animationDelay: mobileMenuOpen ? "90ms" : "0ms" }}
+            >
+              <Camera className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              Photo Studio
+            </Link>
+
             <div className="border-t border-gray-200 my-2 pt-2">
               <div className="px-4 py-2">
                 <p className="text-xs font-bold text-gray-900 uppercase tracking-wider flex items-center gap-2">
@@ -529,7 +551,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/admin/unified") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "100ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "130ms" : "0ms" }}
               >
                 <Package className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Admin Catalogue
@@ -541,7 +563,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/planner") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "140ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "170ms" : "0ms" }}
               >
                 <Calendar className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Planificateur
@@ -553,7 +575,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/admin/publisher") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "180ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "210ms" : "0ms" }}
               >
                 <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Publier manuellement
@@ -565,7 +587,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/admin/agent-publisher-ia") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "220ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "250ms" : "0ms" }}
               >
                 <Bot className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Agent Publisher IA
@@ -577,7 +599,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/admin/publication-monitor") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "260ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "290ms" : "0ms" }}
               >
                 <Activity className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Monitoring publications
@@ -589,7 +611,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/analytics") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "300ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "330ms" : "0ms" }}
               >
                 <BarChart3 className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Statistiques
@@ -607,7 +629,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/profile") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "340ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "370ms" : "0ms" }}
               >
                 <div className="w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="text-xs font-semibold text-white">{user?.email ? getInitials(user.email) : "U"}</span>
@@ -621,7 +643,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                 className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
                   isActive("/family") ? "bg-slate-50 text-slate-900 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
                 }`}
-                style={{ animationDelay: mobileMenuOpen ? "380ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "410ms" : "0ms" }}
               >
                 <Users className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Vendeurs
@@ -633,7 +655,7 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
                   handleSignOut();
                 }}
                 className="mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group text-red-600 hover:bg-red-50 hover:scale-[1.02]"
-                style={{ animationDelay: mobileMenuOpen ? "420ms" : "0ms" }}
+                style={{ animationDelay: mobileMenuOpen ? "450ms" : "0ms" }}
               >
                 <LogOut className="w-5 h-5 group-hover:translate-x-[-2px] transition-transform" />
                 Se déconnecter
