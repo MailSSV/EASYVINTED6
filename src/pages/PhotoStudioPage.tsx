@@ -478,19 +478,7 @@ export function PhotoStudioPage() {
                   </div>
                 ) : activeTab === 'tryon' ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                    <div className="space-y-4">
-                      
-                      {currentImage && (
-                        <VirtualTryOn
-                          imageBase64={currentImage}
-                          mimeType={mimeType}
-                          onImageGenerated={(base64) => {
-                            setEditHistory(prev => [...prev.slice(0, historyIndex + 1), base64]);
-                            setHistoryIndex(prev => prev + 1);
-                          }}
-                        />
-                      )}
-                    </div>
+                   
                   </div>
                 ) : null}
               </div>
