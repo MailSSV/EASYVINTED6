@@ -479,10 +479,7 @@ export function PhotoStudioPage() {
                 ) : activeTab === 'tryon' ? (
                   <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                     <div className="space-y-4">
-                      <div className="bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-4 border border-rose-200">
-                        <h3 className="font-bold text-rose-800 mb-2">Essayage Virtuel IA</h3>
-                       
-                      </div>
+                      
                       {currentImage && (
                         <VirtualTryOn
                           imageBase64={currentImage}
