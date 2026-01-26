@@ -299,15 +299,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                   <LayoutDashboard className="w-4 h-4 transition-transform group-hover:scale-110" />
                   Mon dressing
                 </Link>
-                <Link
-                  to="/photo-studio"
-                  className={`nav-button flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                    isActive("/photo-studio") ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
-                >
-                  <Camera className="w-4 h-4 transition-transform group-hover:scale-110" />
-                  Photo Studio
-                </Link>
+                
               </nav>
             </div>
 
