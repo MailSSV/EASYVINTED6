@@ -240,7 +240,11 @@ export default function AdminUnifiedGridPage() {
     }
 
     if (filters.status) {
-      items = items.filter(item => item.status === filters.status);
+      if (filters.status === 'sold') {
+        items = items.filter(item => item.status === 'sold' || item.status === 'vendu_en_lot');
+      } else {
+        items = items.filter(item => item.status === filters.status);
+      }
     }
 
     if (filters.seller) {
@@ -969,6 +973,15 @@ export default function AdminUnifiedGridPage() {
     });
   };
 
+  const handleStatClick = (status: string) => {
+    if (status === 'all') {
+      setFilters({ ...filters, status: '' });
+    } else {
+      setFilters({ ...filters, status });
+    }
+    setCurrentPage(1);
+  };
+
   const stats = useMemo(() => {
     const totalArticles = articles.length;
     const totalLots = lots.length;
@@ -1011,7 +1024,10 @@ export default function AdminUnifiedGridPage() {
           <p className="text-sm text-gray-600 mt-1">Gérez tous vos articles et lots en un seul endroit</p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mt-6">
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm px-4 py-4 border border-gray-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('all')}
+              className={`bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm px-4 py-4 border ${filters.status === '' ? 'border-gray-400 ring-2 ring-gray-300' : 'border-gray-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-gray-600">Total</div>
                 <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
@@ -1022,7 +1038,10 @@ export default function AdminUnifiedGridPage() {
               <div className="text-xs text-gray-500">{stats.articles} articles · {stats.lots} lots</div>
             </div>
 
-            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-sm px-4 py-4 border border-slate-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('draft')}
+              className={`bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-sm px-4 py-4 border ${filters.status === 'draft' ? 'border-slate-400 ring-2 ring-slate-300' : 'border-slate-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-slate-600">Brouillons</div>
                 <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center group-hover:bg-slate-300 transition-colors">
@@ -1032,7 +1051,10 @@ export default function AdminUnifiedGridPage() {
               <div className="text-2xl font-bold text-slate-700">{stats.drafts}</div>
             </div>
 
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm px-4 py-4 border border-blue-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('ready')}
+              className={`bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm px-4 py-4 border ${filters.status === 'ready' ? 'border-blue-400 ring-2 ring-blue-300' : 'border-blue-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-blue-600">Prêt</div>
                 <div className="w-8 h-8 rounded-lg bg-blue-200 flex items-center justify-center group-hover:bg-blue-300 transition-colors">
@@ -1042,7 +1064,10 @@ export default function AdminUnifiedGridPage() {
               <div className="text-2xl font-bold text-blue-700">{stats.ready}</div>
             </div>
 
-            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl shadow-sm px-4 py-4 border border-orange-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('scheduled')}
+              className={`bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl shadow-sm px-4 py-4 border ${filters.status === 'scheduled' ? 'border-orange-400 ring-2 ring-orange-300' : 'border-orange-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-orange-600">Planifié</div>
                 <div className="w-8 h-8 rounded-lg bg-orange-200 flex items-center justify-center group-hover:bg-orange-300 transition-colors">
@@ -1052,7 +1077,10 @@ export default function AdminUnifiedGridPage() {
               <div className="text-2xl font-bold text-orange-700">{stats.scheduled}</div>
             </div>
 
-            <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl shadow-sm px-4 py-4 border border-violet-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('published')}
+              className={`bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl shadow-sm px-4 py-4 border ${filters.status === 'published' ? 'border-violet-400 ring-2 ring-violet-300' : 'border-violet-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-violet-600">Publié</div>
                 <div className="w-8 h-8 rounded-lg bg-violet-200 flex items-center justify-center group-hover:bg-violet-300 transition-colors">
@@ -1062,7 +1090,10 @@ export default function AdminUnifiedGridPage() {
               <div className="text-2xl font-bold text-violet-700">{stats.published}</div>
             </div>
 
-            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-sm px-4 py-4 border border-teal-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('sold')}
+              className={`bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-sm px-4 py-4 border ${filters.status === 'sold' ? 'border-teal-400 ring-2 ring-teal-300' : 'border-teal-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-teal-600">Vendus</div>
                 <div className="w-8 h-8 rounded-lg bg-teal-200 flex items-center justify-center group-hover:bg-teal-300 transition-colors">
@@ -1073,7 +1104,10 @@ export default function AdminUnifiedGridPage() {
               <div className="text-xs text-teal-600">{stats.soldArticles} articles · {stats.soldLots} lots</div>
             </div>
 
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl shadow-sm px-4 py-4 border border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
+            <div
+              onClick={() => handleStatClick('sold')}
+              className={`bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl shadow-sm px-4 py-4 border ${filters.status === 'sold' ? 'border-emerald-400 ring-2 ring-emerald-300' : 'border-emerald-200'} hover:shadow-md transition-all cursor-pointer group`}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="text-sm font-medium text-emerald-600">Bénéfices</div>
                 <div className="w-8 h-8 rounded-lg bg-emerald-200 flex items-center justify-center group-hover:bg-emerald-300 transition-colors">
