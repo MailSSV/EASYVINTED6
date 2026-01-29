@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Bot, Sparkles, TrendingDown, Sun, Clock, AlertCircle, Package, X, ChevronRight, RefreshCw, Bell, Check, Loader2, Hash, Search, Minimize2 } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Bot, Sparkles, TrendingDown, Sun, Clock, AlertCircle, Package, X, ChevronRight, RefreshCw, Bell, Check, Loader2, Hash, Search, GripVertical } from 'lucide-react';
 import { generateProactiveInsights, ProactiveInsight, optimizeArticleSEO } from '../lib/geminiService';
 import { generateLotTitleAndDescription } from '../lib/lotAnalysisService';
 import { supabase } from '../lib/supabase';
@@ -105,6 +105,14 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
   const [executingAction, setExecutingAction] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  const [position, setPosition] = useState(() => {
+    const saved = localStorage.getItem('kellyPosition');
+    return saved ? JSON.parse(saved) : { bottom: 96, right: 16 };
+  });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const panelRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (user) {
       loadInsights();
@@ -124,6 +132,55 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
       setIsMinimizing(false);
     }, 400);
   };
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
+  useEffect(() => {
+    const handleDragMove = (e: MouseEvent) => {
+      if (!isDragging || !panelRef.current) return;
+
+      const deltaX = dragStart.x - e.clientX;
+      const deltaY = e.clientY - dragStart.y;
+
+      const panelWidth = panelRef.current.offsetWidth;
+      const panelHeight = panelRef.current.offsetHeight;
+
+      const maxRight = window.innerWidth - panelWidth - 16;
+      const maxBottom = window.innerHeight - panelHeight - 16;
+
+      let newRight = position.right + deltaX;
+      let newBottom = position.bottom + deltaY;
+
+      newRight = Math.max(16, Math.min(newRight, maxRight));
+      newBottom = Math.max(16, Math.min(newBottom, maxBottom));
+
+      setPosition({ right: newRight, bottom: newBottom });
+      setDragStart({ x: e.clientX, y: e.clientY });
+    };
+
+    const handleDragEnd = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        localStorage.setItem('kellyPosition', JSON.stringify(position));
+      }
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+    };
+  }, [isDragging, dragStart, position]);
 
   const loadInsights = async (forceRefresh = false) => {
     if (!user || loading) return;
@@ -590,7 +647,15 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
 
   return (
     <>
-      <div className="fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-500 ease-out w-[360px] max-w-[calc(100vw-2rem)]">
+      <div
+        ref={panelRef}
+        className="fixed z-[60] w-[360px] max-w-[calc(100vw-2rem)] transition-none"
+        style={{
+          bottom: `${position.bottom}px`,
+          right: `${position.right}px`,
+          cursor: isDragging ? 'grabbing' : 'auto'
+        }}
+      >
         {expanded && (
           <div className={`bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden ${isMinimizing ? 'animate-kelly-minimize' : 'animate-kelly-expand'}`}>
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
@@ -628,11 +693,11 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
                     <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                   </button>
                   <button
-                    onClick={handleMinimize}
-                    className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                    title="Minimiser"
+                    onMouseDown={handleDragStart}
+                    className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-grab active:cursor-grabbing"
+                    title="Déplacer"
                   >
-                    <Minimize2 className="w-4 h-4" />
+                    <GripVertical className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => {
