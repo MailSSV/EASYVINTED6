@@ -1007,15 +1007,8 @@ export default function AdminUnifiedGridPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1800px] mx-auto p-6">
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <LayoutGrid className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Administration du catalogue</h1>
-              <p className="text-gray-600">Gérez tous vos articles et lots en un seul endroit</p>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold text-gray-900">Administration du catalogue</h1>
+          <p className="text-sm text-gray-600 mt-1">Gérez tous vos articles et lots en un seul endroit</p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mt-6">
             <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm px-4 py-4 border border-gray-200 hover:shadow-md transition-all cursor-pointer group">
