@@ -8,6 +8,7 @@ interface VirtualAgentProps {
   article: Partial<Article>;
   activePhoto?: string;
   onApplySuggestion?: (field: string, value: string | number) => void;
+  isInDrawer?: boolean;
 }
 
 interface Message {
@@ -39,7 +40,7 @@ const decodeAudioData = async (pcm: ArrayBuffer): Promise<AudioBuffer> => {
   return audioBuffer;
 };
 
-const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApplySuggestion }) => {
+const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApplySuggestion, isInDrawer = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimizing, setIsMinimizing] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -316,7 +317,11 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/95 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100"
+        className={`${
+          isInDrawer
+            ? 'fixed top-4 left-1/2 -translate-x-1/2 z-[70]'
+            : 'fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70]'
+        } bg-white/95 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100`}
       >
         <div className="relative">
           <img

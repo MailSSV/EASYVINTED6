@@ -1241,6 +1241,7 @@ export function AdminDetailDrawer({
               [field]: value
             }));
           }}
+          isInDrawer={true}
         />
       )}
 
