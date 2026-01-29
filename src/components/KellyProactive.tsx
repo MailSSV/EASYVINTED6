@@ -92,6 +92,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
   const [insights, setInsights] = useState<ProactiveInsight[]>([]);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isMinimizing, setIsMinimizing] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -116,6 +117,14 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
       setExpanded(isOpenFromHeader);
     }
   }, [isOpenFromHeader]);
+
+  const handleMinimize = () => {
+    setIsMinimizing(true);
+    setTimeout(() => {
+      setExpanded(false);
+      setIsMinimizing(false);
+    }, 400);
+  };
 
   const loadInsights = async (forceRefresh = false) => {
     if (!user || loading) return;
@@ -594,9 +603,9 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
 
   return (
     <>
-      <div className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-300 ${expanded ? 'w-[360px] max-w-[calc(100vw-2rem)]' : 'w-auto'} ${!expanded && isOpenFromHeader !== undefined ? 'hidden' : ''}`}>
+      <div className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-500 ease-out ${expanded ? 'w-[360px] max-w-[calc(100vw-2rem)]' : 'w-auto'} ${!expanded && isOpenFromHeader !== undefined ? 'hidden' : ''}`}>
         {expanded ? (
-          <div className="bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+          <div className={`bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden ${isMinimizing ? 'animate-kelly-minimize' : 'animate-kelly-expand'}`}>
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -632,10 +641,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
                     <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                   </button>
                   <button
-                    onClick={() => {
-                      setExpanded(false);
-                      onToggleFromHeader?.();
-                    }}
+                    onClick={handleMinimize}
                     className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
                     title="Minimiser"
                   >
@@ -644,9 +650,11 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
                   <button
                     onClick={() => {
                       setExpanded(false);
+                      setNotificationsEnabled(false);
                       onToggleFromHeader?.();
                     }}
                     className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+                    title="Fermer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -838,7 +846,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
               setExpanded(true);
               onToggleFromHeader?.();
             }}
-            className="relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-1 rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95"
+            className="relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-1 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 animate-in zoom-in-95 fade-in duration-300"
           >
             <img
               src="/kelly-avatar.png"
