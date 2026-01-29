@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, Sparkles, X, Check, Volume2, VolumeX, Minimize2, Maximize2, GripVertical, Send } from 'lucide-react';
+import { Bot, Sparkles, X, Check, Volume2, VolumeX, GripVertical, Send } from 'lucide-react';
 import { Article } from '../types/article';
 import { getStructuredCoachAdvice, Suggestion, generateSpeech } from '../lib/geminiService';
 import { supabase } from '../lib/supabase';
@@ -15,11 +15,6 @@ interface Message {
   content: string;
   timestamp: number;
   suggestions?: Suggestion[];
-}
-
-interface Position {
-  x: number;
-  y: number;
 }
 
 const decode = (pcm: ArrayBuffer): Float32Array => {
@@ -46,15 +41,18 @@ const decodeAudioData = async (pcm: ArrayBuffer): Promise<AudioBuffer> => {
 
 const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApplySuggestion }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMinimizing, setIsMinimizing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [appliedSuggestions, setAppliedSuggestions] = useState<Set<string>>(new Set());
   const [hasAnalysis, setHasAnalysis] = useState(false);
-  const [position, setPosition] = useState<Position | null>(null);
+  const [position, setPosition] = useState(() => {
+    const saved = localStorage.getItem('virtualAgentPosition');
+    return saved ? JSON.parse(saved) : { bottom: 96, right: 16 };
+  });
   const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState<Position>({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [userQuestion, setUserQuestion] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -66,7 +64,7 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
   const scrollRef = useRef<HTMLDivElement>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -86,35 +84,54 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
     };
   }, []);
 
+  const handleDragStart = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({
+      x: e.clientX,
+      y: e.clientY,
+    });
+  };
+
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging || !position) return;
+    const handleDragMove = (e: MouseEvent) => {
+      if (!isDragging || !panelRef.current) return;
 
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
+      const deltaX = dragStart.x - e.clientX;
+      const deltaY = dragStart.y - e.clientY;
 
-      setPosition({
-        x: position.x + deltaX,
-        y: position.y + deltaY
-      });
+      const panelWidth = panelRef.current.offsetWidth;
+      const panelHeight = panelRef.current.offsetHeight;
 
+      const maxRight = window.innerWidth - panelWidth - 16;
+      const maxBottom = window.innerHeight - panelHeight - 16;
+
+      let newRight = position.right + deltaX;
+      let newBottom = position.bottom + deltaY;
+
+      newRight = Math.max(16, Math.min(newRight, maxRight));
+      newBottom = Math.max(16, Math.min(newBottom, maxBottom));
+
+      setPosition({ right: newRight, bottom: newBottom });
       setDragStart({ x: e.clientX, y: e.clientY });
     };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
+    const handleDragEnd = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        localStorage.setItem('virtualAgentPosition', JSON.stringify(position));
+      }
     };
 
     if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('mousemove', handleDragMove);
+      document.addEventListener('mouseup', handleDragEnd);
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
     };
-  }, [isDragging, position, dragStart]);
+  }, [isDragging, dragStart, position]);
 
   const speak = async (text: string) => {
     if (!voiceEnabled) return;
@@ -288,51 +305,18 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
   };
 
   const handleClose = () => {
-    setIsOpen(false);
-    setHasAnalysis(false);
-    setIsMinimized(false);
-    setPosition(null);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (window.innerWidth < 640) return;
-
-    setIsDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
-
-    if (!position && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setPosition({ x: rect.left, y: rect.top });
-    }
-  };
-
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
+    setIsMinimizing(true);
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsMinimizing(false);
+    }, 400);
   };
 
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-4 rounded-[24px] shadow-[0_8px_30px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_40px_rgba(16,185,129,0.4)] backdrop-blur-lg transition-all duration-500 hover:scale-105 active:scale-95 flex items-center gap-2 group border border-white/20"
-      >
-        <div className="relative">
-          <Bot size={24} className="drop-shadow-sm" />
-          <span className="absolute -top-1 -right-1 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-60"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white shadow-sm"></span>
-          </span>
-        </div>
-        <span className="font-semibold pr-1 group-hover:block hidden animate-in slide-in-from-right-2 duration-300 text-shadow">Ma Coach IA</span>
-      </button>
-    );
-  }
-
-  if (isMinimized) {
-    return (
-      <button
-        onClick={toggleMinimize}
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/90 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70] bg-white/95 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100"
       >
         <div className="relative">
           <img
@@ -349,20 +333,17 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
           <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-full hidden items-center justify-center shadow-sm">
             <Bot size={22} className="text-white" />
           </div>
-          {hasAnalysis && (
-            <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60"></span>
-              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-sm"></span>
-            </span>
-          )}
-        </div>
-        <div className="flex flex-col items-start">
-          <span className="font-bold text-sm text-emerald-600">Kelly</span>
-          <span className="text-[11px] text-gray-600">
-            {hasAnalysis ? 'Analyse disponible' : 'Prête à analyser'}
+          <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-300 opacity-60"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-400"></span>
           </span>
         </div>
-        <Maximize2 size={16} className="text-emerald-500 group-hover:scale-110 transition-transform duration-300" />
+        <div className="flex flex-col items-start">
+          <span className="font-bold text-sm text-emerald-600">Kelly Coach</span>
+          <span className="text-[11px] text-gray-600">
+            Prete a t'aider
+          </span>
+        </div>
       </button>
     );
   }
@@ -370,77 +351,76 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
   return (
     <>
       <div
-        className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm animate-in fade-in duration-500"
-        onClick={handleClose}
-      />
-      <div
-        ref={containerRef}
-        className={`z-[71] max-w-[calc(100vw-2rem)] sm:w-[420px] h-[620px] max-h-[85vh] bg-white/95 backdrop-blur-2xl rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40 flex flex-col overflow-hidden ${
-          position
-            ? 'fixed'
-            : 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-        } animate-in slide-in-from-bottom-10 duration-500`}
-        style={position ? { left: `${position.x}px`, top: `${position.y}px` } : {}}
-        onClick={(e) => e.stopPropagation()}
+        ref={panelRef}
+        className="fixed z-[60] w-[420px] max-w-[calc(100vw-2rem)] transition-none"
+        style={{
+          bottom: `${position.bottom}px`,
+          right: `${position.right}px`,
+          cursor: isDragging ? 'grabbing' : 'auto'
+        }}
       >
+      <div className={`bg-white/95 backdrop-blur-2xl rounded-[28px] shadow-[0_20px_60px_rgba(0,0,0,0.15)] border border-white/40 flex flex-col overflow-hidden h-[620px] max-h-[85vh] ${isMinimizing ? 'animate-kelly-minimize' : 'animate-kelly-expand'}`}>
       <div
-        className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-5 flex justify-between items-center text-white sm:cursor-move select-none relative overflow-hidden"
-        onMouseDown={handleMouseDown}
+        className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-5 text-white cursor-move select-none relative overflow-hidden"
+        onMouseDown={handleDragStart}
       >
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjA1IiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-30"></div>
-        <div className="flex items-center gap-3 pointer-events-none relative z-10">
-          <div className="relative">
-            <img
-              src="/kelly-avatar.png"
-              alt="Kelly"
-              className="w-11 h-11 rounded-full object-cover ring-2 ring-white/40 shadow-lg"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallback = target.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'flex';
-              }}
-            />
-            <div className="w-11 h-11 bg-white/20 rounded-full hidden items-center justify-center backdrop-blur-sm">
-              <Bot size={22} className="text-white" />
+        <div className="flex items-center justify-between w-full relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <img
+                src="/kelly-avatar.png"
+                alt="Kelly"
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-white/30"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+              <div className="w-9 h-9 bg-white/20 rounded-full hidden items-center justify-center backdrop-blur-sm">
+                <Bot size={22} className="text-white" />
+              </div>
+              <span className={`absolute -bottom-0.5 -right-0.5 flex h-3 w-3`}>
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isSpeaking ? 'bg-yellow-300' : 'bg-white'} opacity-60`}></span>
+                <span className={`relative inline-flex rounded-full h-3 w-3 ${isSpeaking ? 'bg-yellow-400' : 'bg-white'}`}></span>
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-white text-sm">Kelly Coach</h3>
+              <p className="text-[10px] text-white/70">
+                {isSpeaking ? 'Parle...' : 'Prete a t\'aider'}
+              </p>
             </div>
           </div>
-          <div>
-            <h3 className="font-bold text-base text-white flex items-center gap-1.5 drop-shadow-sm">
-              Kelly
-              <GripVertical size={14} className="text-white/60 hidden sm:block" />
-            </h3>
-            <p className="text-[11px] text-white/90 flex items-center gap-1.5 drop-shadow-sm">
-              <span className={`w-2 h-2 rounded-full shadow-sm ${isSpeaking ? 'bg-yellow-300 animate-pulse' : 'bg-white'}`}></span>
-              {isSpeaking ? 'Parle...' : 'En ligne'}
-            </p>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleVoice}
+              className={`p-1.5 rounded-lg transition-colors ${
+                voiceEnabled
+                  ? 'bg-white/25 text-white hover:bg-white/35'
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
+              }`}
+              title={voiceEnabled ? 'Desactiver la voix' : 'Activer la voix'}
+            >
+              {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            </button>
+            <button
+              onMouseDown={handleDragStart}
+              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-grab active:cursor-grabbing"
+              title="Deplacer"
+            >
+              <GripVertical className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleClose}
+              className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              title="Fermer"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
-        </div>
-        <div className="flex items-center gap-2 pointer-events-auto relative z-10">
-          <button
-            onClick={toggleVoice}
-            className={`p-2.5 rounded-2xl transition-all duration-300 active:scale-90 ${
-              voiceEnabled
-                ? 'bg-white/25 text-white hover:bg-white/35 shadow-lg'
-                : 'text-white/70 hover:text-white hover:bg-white/15'
-            }`}
-            title={voiceEnabled ? 'Désactiver la voix' : 'Activer la voix'}
-          >
-            {voiceEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
-          </button>
-          <button
-            onClick={toggleMinimize}
-            className="sm:hidden p-2.5 rounded-2xl text-white/70 hover:text-white hover:bg-white/15 transition-all duration-300 active:scale-90"
-            title="Réduire"
-          >
-            <Minimize2 size={18} />
-          </button>
-          <button
-            onClick={handleClose}
-            className="p-2.5 rounded-2xl text-white/70 hover:text-white hover:bg-white/15 transition-all duration-300 active:scale-90"
-          >
-            <X size={18} />
-          </button>
         </div>
       </div>
 
@@ -591,6 +571,7 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
         <p className="text-center text-[11px] text-gray-500 font-medium">
           Kelly peut dire des trucs chelous. Vérifiez toujours ses conseils.
         </p>
+      </div>
       </div>
       </div>
     </>
