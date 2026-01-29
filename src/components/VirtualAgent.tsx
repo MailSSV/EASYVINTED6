@@ -334,8 +334,8 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
             <Bot size={22} className="text-white" />
           </div>
           <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-300 opacity-60"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-400"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-300 opacity-60"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-fuchsia-400"></span>
           </span>
         </div>
         <div className="flex flex-col items-start">
@@ -383,8 +383,8 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
                 <Bot size={22} className="text-white" />
               </div>
               <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-60"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isSpeaking ? 'bg-blue-300' : 'bg-fuchsia-300'} opacity-60`}></span>
+                <span className={`relative inline-flex rounded-full h-3 w-3 ${isSpeaking ? 'bg-blue-400' : 'bg-fuchsia-400'}`}></span>
               </span>
             </div>
             <div>
