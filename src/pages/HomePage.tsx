@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import {
   Sparkles,
@@ -14,10 +14,50 @@ import {
   BarChart3,
   Clock,
   Star,
+  LogOut,
 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import "../styles/navigation.css";
 
 export function HomePage() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [closingUserMenu, setClosingUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const MENU_CLOSE_MS = 520;
+
+  const closeMenuWithAnimation = () => {
+    setClosingUserMenu(true);
+    window.setTimeout(() => {
+      setShowUserMenu(false);
+      setClosingUserMenu(false);
+    }, MENU_CLOSE_MS);
+  };
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        if (showUserMenu && !closingUserMenu) closeMenuWithAnimation();
+      }
+    }
+
+    if (showUserMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showUserMenu, closingUserMenu]);
+
+  const getInitials = (email: string) => email.substring(0, 2).toUpperCase();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   // ✅ CTA styles (harmonisés)
   const ctaPrimary =
@@ -66,9 +106,48 @@ export function HomePage() {
 
             <div className="flex items-center gap-4">
               {user ? (
-                <Link to="/mon_dressing" className={ctaLink}>
-                  Mon dressing
-                </Link>
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => {
+                      if (showUserMenu) {
+                        if (!closingUserMenu) closeMenuWithAnimation();
+                      } else {
+                        setShowUserMenu(true);
+                      }
+                    }}
+                    className="flex w-10 h-10 rounded-full bg-emerald-600 items-center justify-center hover:bg-emerald-700 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-emerald-500/30"
+                    title="Mon profil"
+                  >
+                    <span className="text-sm font-semibold text-white">{user?.email ? getInitials(user.email) : "U"}</span>
+                  </button>
+
+                  {showUserMenu && (
+                    <div className={`absolute right-0 mt-2 w-56 bg-white/98 backdrop-blur-xl rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 p-1 ${closingUserMenu ? 'closing' : ''}`}
+                      style={{
+                        animation: closingUserMenu ? 'slideUpFadeOut 0.52s cubic-bezier(0.16, 1, 0.3, 1) forwards' : 'slideDownFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+                      }}
+                    >
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
+                      </div>
+                      <Link
+                        to="/mon_dressing"
+                        onClick={() => closeMenuWithAnimation()}
+                        className="menu-item flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-all duration-200 rounded-lg"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        Mon dressing
+                      </Link>
+                      <button
+                        onClick={handleSignOut}
+                        className="menu-item flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-all duration-200 rounded-lg"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Se déconnecter
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <Link to="/login" className={ctaLink}>
                   Connexion
