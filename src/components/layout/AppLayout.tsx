@@ -15,7 +15,6 @@ import {
   Bot,
   Activity,
   Check,
-  Camera,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { ShoppingBag } from "lucide-react";
@@ -515,18 +514,6 @@ ${mobileMenuOpen ? "max-h-[80vh] opacity-100 translate-y-0" : "max-h-0 opacity-0
             >
               <LayoutDashboard className="w-5 h-5 group-hover:scale-110 transition-transform" />
               Mon dressing
-            </Link>
-
-            <Link
-              to="/photo-studio"
-              onClick={() => setMobileMenuOpen(false)}
-              className={`mobile-menu-item flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 group ${
-                isActive("/photo-studio") ? "bg-emerald-50 text-emerald-700 shadow-sm" : "text-gray-700 hover:bg-gray-50 hover:scale-[1.02]"
-              }`}
-              style={{ animationDelay: mobileMenuOpen ? "90ms" : "0ms" }}
-            >
-              <Camera className="w-5 h-5 group-hover:scale-110 transition-transform" />
-              Photo Studio
             </Link>
 
             <div className="border-t border-gray-200 my-2 pt-2">
