@@ -1018,7 +1018,7 @@ export default function AdminUnifiedGridPage() {
                   <Package className="w-4 h-4 text-gray-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.total}</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">{stats.total}</div>
               <div className="text-xs text-gray-500">{stats.articles} articles · {stats.lots} lots</div>
             </div>
 
@@ -1029,7 +1029,7 @@ export default function AdminUnifiedGridPage() {
                   <SquarePen className="w-4 h-4 text-slate-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-slate-700">{stats.drafts}</div>
+              <div className="text-2xl font-bold text-slate-700">{stats.drafts}</div>
             </div>
 
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm px-4 py-4 border border-blue-200 hover:shadow-md transition-all cursor-pointer group">
@@ -1039,7 +1039,7 @@ export default function AdminUnifiedGridPage() {
                   <Sparkles className="w-4 h-4 text-blue-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-blue-700">{stats.ready}</div>
+              <div className="text-2xl font-bold text-blue-700">{stats.ready}</div>
             </div>
 
             <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl shadow-sm px-4 py-4 border border-orange-200 hover:shadow-md transition-all cursor-pointer group">
@@ -1049,7 +1049,7 @@ export default function AdminUnifiedGridPage() {
                   <Calendar className="w-4 h-4 text-orange-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-orange-700">{stats.scheduled}</div>
+              <div className="text-2xl font-bold text-orange-700">{stats.scheduled}</div>
             </div>
 
             <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl shadow-sm px-4 py-4 border border-violet-200 hover:shadow-md transition-all cursor-pointer group">
@@ -1059,7 +1059,7 @@ export default function AdminUnifiedGridPage() {
                   <Upload className="w-4 h-4 text-violet-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-violet-700">{stats.published}</div>
+              <div className="text-2xl font-bold text-violet-700">{stats.published}</div>
             </div>
 
             <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-sm px-4 py-4 border border-teal-200 hover:shadow-md transition-all cursor-pointer group">
@@ -1069,7 +1069,7 @@ export default function AdminUnifiedGridPage() {
                   <ShoppingBag className="w-4 h-4 text-teal-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-teal-700">{stats.sold}</div>
+              <div className="text-2xl font-bold text-teal-700">{stats.sold}</div>
               <div className="text-xs text-teal-600">{stats.soldArticles} articles · {stats.soldLots} lots</div>
             </div>
 
@@ -1080,7 +1080,7 @@ export default function AdminUnifiedGridPage() {
                   <Sparkles className="w-4 h-4 text-emerald-600" />
                 </div>
               </div>
-              <div className="text-3xl font-bold text-emerald-700">{stats.netProfit.toFixed(2)}€</div>
+              <div className="text-2xl font-bold text-emerald-700">{stats.netProfit.toFixed(2)}€</div>
             </div>
           </div>
         </div>
