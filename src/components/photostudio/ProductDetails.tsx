@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ProductData } from '../types';
+import { ProductData } from '../../lib/geminiService';
 import { Tag, CheckCircle, DollarSign, Box, Copy, Check, Instagram, Mail, Search, PackagePlus, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ProductDetailsProps {

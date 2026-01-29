@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { analyzeProductImage, editProductImage, ProductData } from '../lib/geminiService';
 import { ImageUploader } from '../components/photostudio/ImageUploader';
-import { ProductDetails } from '../components/photostudio/ProductDetails';
+import ProductDetails from '../components/photostudio/ProductDetails';
 import { EditorPanel } from '../components/photostudio/EditorPanel';
 import { DefectDetector } from '../components/DefectDetector';
 import { VirtualTryOn } from '../components/VirtualTryOn';
