@@ -68,11 +68,11 @@ export function HomePage() {
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2";
 
   const ctaSecondary =
-    "inline-flex items-center justify-center px-8 py-4 rounded-full " +
-    "border border-emerald-300 bg-white " +
-    "text-emerald-700 font-semibold " +
-    "hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all " +
-    "shadow-sm hover:shadow-md " +
+    "group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full " +
+    "border-2 border-emerald-600 bg-white " +
+    "text-emerald-700 text-base font-semibold " +
+    "hover:bg-emerald-600 hover:text-white transition-all " +
+    "shadow-lg shadow-emerald-600/10 hover:shadow-xl hover:shadow-emerald-600/20 hover:scale-105 " +
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2";
 
   const ctaPrimaryLight =
@@ -188,13 +188,6 @@ export function HomePage() {
 
             {/* ✅ CTA Buttons (harmonisés) */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              {!user && (
-                <Link to="/login" className={ctaPrimary}>
-                  J'ai déjà un compte
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-                </Link>
-              )}
-
               <Link to={user ? "/mon_dressing" : "/signup"} className={user ? ctaPrimary : ctaSecondary}>
                 {user ? (
                   <>
@@ -202,9 +195,19 @@ export function HomePage() {
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                   </>
                 ) : (
-                  "Créer un compte"
+                  <>
+                    Créer un compte
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                  </>
                 )}
               </Link>
+
+              {!user && (
+                <Link to="/login" className={ctaPrimary}>
+                  J'ai déjà un compte
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                </Link>
+              )}
             </div>
 
             {/* Social proof */}
