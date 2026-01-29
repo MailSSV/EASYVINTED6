@@ -496,7 +496,7 @@ export function AdminDetailDrawer({
               }`}>
                 {item.type === 'lot' ? 'Lot' : 'Article'}
               </span>
-              <h2 className="font-semibold text-slate-900">Details</h2>
+             
             </div>
             <button
               onClick={handleClose}
