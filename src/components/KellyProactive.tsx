@@ -117,11 +117,21 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
     }
   }, [isOpenFromHeader]);
 
-  const loadInsights = async () => {
+  const loadInsights = async (forceRefresh = false) => {
     if (!user || loading) return;
 
     setLoading(true);
     try {
+      if (!forceRefresh) {
+        const cachedInsights = await loadCachedInsights();
+        if (cachedInsights && cachedInsights.length > 0) {
+          setInsights(cachedInsights.filter(i => !dismissed.has(i.title)));
+          setLastRefresh(new Date());
+          setLoading(false);
+          return;
+        }
+      }
+
       const [articlesResult, soldResult] = await Promise.all([
         supabase
           .from('articles')
@@ -163,12 +173,97 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
         })
       );
 
+      await saveCachedInsights(enrichedInsights);
+
       setInsights(enrichedInsights.filter(i => !dismissed.has(i.title)));
       setLastRefresh(new Date());
     } catch (error) {
       console.error('Error loading insights:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCachedInsights = async (): Promise<ProactiveInsight[] | null> => {
+    if (!user) return null;
+
+    try {
+      const { data, error } = await supabase
+        .from('kelly_insights')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('cache_key', 'default')
+        .eq('status', 'active')
+        .gte('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading cached insights:', error);
+        return null;
+      }
+
+      if (!data || data.length === 0) return null;
+
+      const lastRefreshTime = new Date(data[0].last_refresh_at);
+      const now = new Date();
+      const minutesSinceRefresh = (now.getTime() - lastRefreshTime.getTime()) / (1000 * 60);
+
+      if (minutesSinceRefresh > 30) {
+        return null;
+      }
+
+      return data.map(insight => ({
+        type: insight.type as any,
+        priority: insight.priority as any,
+        title: insight.title,
+        message: insight.message,
+        actionLabel: insight.action_label,
+        articleIds: insight.article_ids,
+        suggestedAction: insight.suggested_action,
+      }));
+    } catch (error) {
+      console.error('Error loading cached insights:', error);
+      return null;
+    }
+  };
+
+  const saveCachedInsights = async (insights: ProactiveInsight[]) => {
+    if (!user || insights.length === 0) return;
+
+    try {
+      await supabase
+        .from('kelly_insights')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('cache_key', 'default');
+
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 30 * 60 * 1000);
+
+      const insightsToInsert = insights.map(insight => ({
+        user_id: user.id,
+        type: insight.type,
+        priority: insight.priority,
+        title: insight.title,
+        message: insight.message,
+        action_label: insight.actionLabel,
+        article_ids: insight.articleIds || [],
+        suggested_action: insight.suggestedAction || null,
+        status: 'active',
+        cache_key: 'default',
+        last_refresh_at: now.toISOString(),
+        expires_at: expiresAt.toISOString(),
+      }));
+
+      const { error } = await supabase
+        .from('kelly_insights')
+        .insert(insightsToInsert);
+
+      if (error) {
+        console.error('Error saving cached insights:', error);
+      }
+    } catch (error) {
+      console.error('Error saving cached insights:', error);
     }
   };
 
@@ -426,7 +521,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
 
       if (shouldReloadInsights) {
         setTimeout(() => {
-          loadInsights();
+          loadInsights(true);
         }, 2000);
       }
     } catch (error) {
@@ -529,7 +624,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
                 </div>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={loadInsights}
+                    onClick={() => loadInsights(true)}
                     disabled={loading}
                     className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
                     title="Rafraichir"
