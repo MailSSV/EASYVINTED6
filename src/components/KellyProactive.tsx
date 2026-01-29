@@ -95,7 +95,6 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
   const [isMinimizing, setIsMinimizing] = useState(false);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [actionModal, setActionModal] = useState<ActionModalState>({
     isOpen: false,
     insight: null,
@@ -585,42 +584,14 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
     }
   }, [visibleInsights.length, onInsightsCountChange]);
 
-  if (!notificationsEnabled) {
-    return (
-      <button
-        onClick={() => setNotificationsEnabled(true)}
-        className="fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-1 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
-        title="Réactiver les conseils de Kelly"
-      >
-        <img
-          src="/kelly-avatar.png"
-          alt="Kelly"
-          className="w-12 h-12 rounded-xl object-cover"
-          onError={(e) => {
-            const target = e.target as HTMLImageElement;
-            target.style.display = 'none';
-            const fallback = document.createElement('div');
-            fallback.innerHTML = '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>';
-            target.parentElement?.appendChild(fallback);
-          }}
-        />
-        {visibleInsights.length > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-pulse">
-            {visibleInsights.length}
-          </span>
-        )}
-      </button>
-    );
-  }
-
-  if (visibleInsights.length === 0 && !loading) {
+  if (!expanded) {
     return null;
   }
 
   return (
     <>
-      <div className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-500 ease-out ${expanded ? 'w-[360px] max-w-[calc(100vw-2rem)]' : 'w-auto'}`}>
-        {expanded ? (
+      <div className="fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-500 ease-out w-[360px] max-w-[calc(100vw-2rem)]">
+        {expanded && (
           <div className={`bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden ${isMinimizing ? 'animate-kelly-minimize' : 'animate-kelly-expand'}`}>
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
               <div className="flex items-center justify-between">
@@ -666,7 +637,6 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
                   <button
                     onClick={() => {
                       setExpanded(false);
-                      setNotificationsEnabled(false);
                       onToggleFromHeader?.();
                     }}
                     className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
@@ -856,32 +826,6 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
               </div>
             )}
           </div>
-        ) : (
-          <button
-            onClick={() => {
-              setExpanded(true);
-              onToggleFromHeader?.();
-            }}
-            className="relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-1 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 animate-in zoom-in-95 fade-in duration-300"
-          >
-            <img
-              src="/kelly-avatar.png"
-              alt="Kelly"
-              className="w-12 h-12 rounded-xl object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const fallback = document.createElement('div');
-                fallback.innerHTML = '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>';
-                target.parentElement?.appendChild(fallback);
-              }}
-            />
-            {visibleInsights.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-pulse">
-                {visibleInsights.length}
-              </span>
-            )}
-          </button>
         )}
       </div>
 
