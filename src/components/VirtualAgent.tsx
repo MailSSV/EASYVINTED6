@@ -382,9 +382,9 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
               <div className="w-9 h-9 bg-white/20 rounded-full hidden items-center justify-center backdrop-blur-sm">
                 <Bot size={22} className="text-white" />
               </div>
-              <span className={`absolute -bottom-0.5 -right-0.5 flex h-3 w-3`}>
-                <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${isSpeaking ? 'bg-yellow-300' : 'bg-white'} opacity-60`}></span>
-                <span className={`relative inline-flex rounded-full h-3 w-3 ${isSpeaking ? 'bg-yellow-400' : 'bg-white'}`}></span>
+              <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-60"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
               </span>
             </div>
             <div>
