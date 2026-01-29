@@ -603,7 +603,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
 
   return (
     <>
-      <div className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-500 ease-out ${expanded ? 'w-[360px] max-w-[calc(100vw-2rem)]' : 'w-auto'} ${!expanded && isOpenFromHeader !== undefined ? 'hidden' : ''}`}>
+      <div className={`fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] transition-all duration-500 ease-out ${expanded ? 'w-[360px] max-w-[calc(100vw-2rem)]' : 'w-auto'}`}>
         {expanded ? (
           <div className={`bg-white rounded-2xl shadow-2xl border border-emerald-100 overflow-hidden ${isMinimizing ? 'animate-kelly-minimize' : 'animate-kelly-expand'}`}>
             <div className="bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3">
