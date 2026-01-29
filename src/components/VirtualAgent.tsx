@@ -319,7 +319,7 @@ const VirtualAgent: React.FC<VirtualAgentProps> = ({ article, activePhoto, onApp
         onClick={() => setIsOpen(true)}
         className={`${
           isInDrawer
-            ? 'fixed top-2 right-[5%] z-[70]'
+            ? 'fixed top-2 right-[10%] z-[70]'
             : 'fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[70]'
         } bg-white/95 backdrop-blur-xl px-5 py-4 rounded-[24px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.15)] transition-all duration-500 flex items-center gap-3 group animate-in slide-in-from-bottom-4 hover:scale-105 active:scale-95 border border-emerald-100`}
       >
