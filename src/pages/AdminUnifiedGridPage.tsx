@@ -975,6 +975,8 @@ export default function AdminUnifiedGridPage() {
     const scheduledLots = lots.filter(l => l.status === 'scheduled').length;
     const publishedArticles = articles.filter(a => a.status === 'published').length;
     const publishedLots = lots.filter(l => l.status === 'published').length;
+    const soldArticles = articles.filter(a => a.status === 'sold' || a.status === 'vendu_en_lot').length;
+    const soldLots = lots.filter(l => l.status === 'sold').length;
 
     const totalNetProfit = [
       ...articles.filter(a => a.net_profit != null).map(a => a.net_profit || 0),
@@ -989,6 +991,9 @@ export default function AdminUnifiedGridPage() {
       ready: readyArticles + readyLots,
       scheduled: scheduledArticles + scheduledLots,
       published: publishedArticles + publishedLots,
+      sold: soldArticles + soldLots,
+      soldArticles: soldArticles,
+      soldLots: soldLots,
       netProfit: totalNetProfit
     };
   }, [articles, lots]);
@@ -1021,6 +1026,11 @@ export default function AdminUnifiedGridPage() {
             <div className="bg-violet-50 rounded-lg px-4 py-3 border border-violet-200">
               <div className="text-sm text-violet-600">Publié</div>
               <div className="text-2xl font-bold text-violet-700">{stats.published}</div>
+            </div>
+            <div className="bg-teal-50 rounded-lg px-4 py-3 border border-teal-200">
+              <div className="text-sm text-teal-600">Vendus</div>
+              <div className="text-2xl font-bold text-teal-700">{stats.sold}</div>
+              <div className="text-xs text-teal-600">{stats.soldArticles} articles · {stats.soldLots} lots</div>
             </div>
             <div className="bg-emerald-50 rounded-lg px-4 py-3 border border-emerald-200">
               <div className="text-sm text-emerald-600">Bénéfices</div>
