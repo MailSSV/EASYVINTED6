@@ -504,11 +504,6 @@ export function HomePage() {
                     Inscription
                   </Link>
                 </li>
-                <li>
-                  <Link to="/profile" className="text-slate-600 hover:text-emerald-700 transition-colors">
-                    Profil
-                  </Link>
-                </li>
               </ul>
             </div>
           </div>
