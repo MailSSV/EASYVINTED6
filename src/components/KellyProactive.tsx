@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, Sparkles, TrendingDown, Sun, Clock, AlertCircle, Package, X, ChevronRight, RefreshCw, Bell, BellOff, Check, Loader2, Hash, Search, Minimize2 } from 'lucide-react';
+import { Bot, Sparkles, TrendingDown, Sun, Clock, AlertCircle, Package, X, ChevronRight, RefreshCw, Bell, Check, Loader2, Hash, Search, Minimize2 } from 'lucide-react';
 import { generateProactiveInsights, ProactiveInsight, optimizeArticleSEO } from '../lib/geminiService';
 import { generateLotTitleAndDescription } from '../lib/lotAnalysisService';
 import { supabase } from '../lib/supabase';
@@ -107,10 +107,10 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
-    if (user && notificationsEnabled) {
+    if (user) {
       loadInsights();
     }
-  }, [user, notificationsEnabled]);
+  }, [user]);
 
   useEffect(() => {
     if (isOpenFromHeader !== undefined) {
@@ -589,10 +589,26 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
     return (
       <button
         onClick={() => setNotificationsEnabled(true)}
-        className="fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] bg-gray-100 text-gray-600 p-3 rounded-full shadow-lg hover:bg-gray-200 transition-all"
-        title="Reactiver les conseils Kelly"
+        className="fixed bottom-24 right-4 sm:bottom-24 sm:right-6 z-[60] relative bg-gradient-to-br from-emerald-500 to-teal-500 text-white p-1 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+        title="Réactiver les conseils de Kelly"
       >
-        <BellOff className="w-5 h-5" />
+        <img
+          src="/kelly-avatar.png"
+          alt="Kelly"
+          className="w-12 h-12 rounded-xl object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const fallback = document.createElement('div');
+            fallback.innerHTML = '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>';
+            target.parentElement?.appendChild(fallback);
+          }}
+        />
+        {visibleInsights.length > 0 && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white shadow-lg animate-pulse">
+            {visibleInsights.length}
+          </span>
+        )}
       </button>
     );
   }
