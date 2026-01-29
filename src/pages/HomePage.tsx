@@ -188,16 +188,23 @@ export function HomePage() {
 
             {/* ✅ CTA Buttons (harmonisés) */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Link to={user ? "/mon_dressing" : "/signup"} className={ctaPrimary}>
-                {user ? "GO!" : "Créer un compte"}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-              </Link>
-
               {!user && (
-                <Link to="/login" className={ctaSecondary}>
-                  J’ai déjà un compte
+                <Link to="/login" className={ctaPrimary}>
+                  J'ai déjà un compte
+                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
                 </Link>
               )}
+
+              <Link to={user ? "/mon_dressing" : "/signup"} className={user ? ctaPrimary : ctaSecondary}>
+                {user ? (
+                  <>
+                    GO!
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
+                  </>
+                ) : (
+                  "Créer un compte"
+                )}
+              </Link>
             </div>
 
             {/* Social proof */}
