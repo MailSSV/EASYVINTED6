@@ -146,7 +146,7 @@ export function KellyProactive({ onNavigateToArticle, onCreateBundle, onRefreshD
       if (!isDragging || !panelRef.current) return;
 
       const deltaX = dragStart.x - e.clientX;
-      const deltaY = e.clientY - dragStart.y;
+      const deltaY = dragStart.y - e.clientY;
 
       const panelWidth = panelRef.current.offsetWidth;
       const panelHeight = panelRef.current.offsetHeight;
