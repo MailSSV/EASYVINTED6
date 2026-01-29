@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Trash2, AlertCircle, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, Send, ExternalLink, Package, ShoppingBag, SquarePen, Upload } from 'lucide-react';
+import { Plus, Trash2, AlertCircle, Eye, Search, ChevronLeft, ChevronRight, ChevronDown, ArrowUp, ArrowDown, Send, ExternalLink, Package, ShoppingBag, SquarePen, Upload, X, LayoutGrid, List, Calendar, Clock, User, Tag, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { AdminArticleRow, AdminLotRow, FamilyMember } from '../types/adminGrid';
 import { Toast } from '../components/ui/Toast';
@@ -122,6 +122,7 @@ export default function AdminUnifiedGridPage() {
   const [articleFormOpen, setArticleFormOpen] = useState(false);
   const [lotBuilderOpen, setLotBuilderOpen] = useState(false);
   const [editItemId, setEditItemId] = useState<string | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
     if (user) {
@@ -828,20 +829,24 @@ export default function AdminUnifiedGridPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    const statusColors: Record<string, string> = {
-      draft: 'bg-slate-100 text-slate-700',
-      ready: 'bg-blue-100 text-blue-700',
-      scheduled: 'bg-orange-100 text-orange-700',
-      published: 'bg-violet-100 text-violet-700',
-      sold: 'bg-emerald-100 text-emerald-700',
-      vendu_en_lot: 'bg-teal-100 text-teal-700',
-      processing: 'bg-orange-100 text-orange-700',
-      error: 'bg-red-100 text-red-700'
+    const statusConfig: Record<string, { bg: string; text: string; label: string }> = {
+      draft: { bg: 'bg-slate-100', text: 'text-slate-700', label: 'Brouillon' },
+      ready: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Prêt' },
+      scheduled: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Planifié' },
+      published: { bg: 'bg-violet-100', text: 'text-violet-700', label: 'Publié' },
+      sold: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'Vendu' },
+      vendu_en_lot: { bg: 'bg-teal-100', text: 'text-teal-700', label: 'Vendu en lot' },
+      vinted_draft: { bg: 'bg-purple-100', text: 'text-purple-700', label: 'Brouillon Vinted' },
+      reserved: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Réservé' },
+      processing: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'En cours' },
+      error: { bg: 'bg-red-100', text: 'text-red-700', label: 'Erreur' }
     };
 
+    const config = statusConfig[status] || { bg: 'bg-gray-100', text: 'text-gray-700', label: status };
+
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status] || 'bg-gray-100 text-gray-700'}`}>
-        {status}
+      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text} shadow-sm`}>
+        {config.label}
       </span>
     );
   };
@@ -1002,67 +1007,147 @@ export default function AdminUnifiedGridPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-[1800px] mx-auto p-6">
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Administration du catalogue</h1>
-          <p className="text-gray-600">Gérez tous vos articles et lots en un seul endroit</p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <LayoutGrid className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Administration du catalogue</h1>
+              <p className="text-gray-600">Gérez tous vos articles et lots en un seul endroit</p>
+            </div>
+          </div>
 
-          <div className="flex gap-4 mt-4">
-            <div className="bg-white rounded-lg shadow-sm px-4 py-3 border">
-              <div className="text-sm text-gray-600">Total</div>
-              <div className="text-2xl font-bold">{stats.total}</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mt-6">
+            <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-sm px-4 py-4 border border-gray-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-gray-600">Total</div>
+                <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center group-hover:bg-gray-200 transition-colors">
+                  <Package className="w-4 h-4 text-gray-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-gray-900 mb-1">{stats.total}</div>
               <div className="text-xs text-gray-500">{stats.articles} articles · {stats.lots} lots</div>
             </div>
-            <div className="bg-slate-50 rounded-lg px-4 py-3 border border-slate-200">
-              <div className="text-sm text-slate-600">Brouillons</div>
-              <div className="text-2xl font-bold text-slate-700">{stats.drafts}</div>
+
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl shadow-sm px-4 py-4 border border-slate-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-slate-600">Brouillons</div>
+                <div className="w-8 h-8 rounded-lg bg-slate-200 flex items-center justify-center group-hover:bg-slate-300 transition-colors">
+                  <SquarePen className="w-4 h-4 text-slate-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-slate-700">{stats.drafts}</div>
             </div>
-            <div className="bg-blue-50 rounded-lg px-4 py-3 border border-blue-200">
-              <div className="text-sm text-blue-600">Prêt</div>
-              <div className="text-2xl font-bold text-blue-700">{stats.ready}</div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl shadow-sm px-4 py-4 border border-blue-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-blue-600">Prêt</div>
+                <div className="w-8 h-8 rounded-lg bg-blue-200 flex items-center justify-center group-hover:bg-blue-300 transition-colors">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-blue-700">{stats.ready}</div>
             </div>
-            <div className="bg-orange-50 rounded-lg px-4 py-3 border border-orange-200">
-              <div className="text-sm text-orange-600">Planifié</div>
-              <div className="text-2xl font-bold text-orange-700">{stats.scheduled}</div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl shadow-sm px-4 py-4 border border-orange-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-orange-600">Planifié</div>
+                <div className="w-8 h-8 rounded-lg bg-orange-200 flex items-center justify-center group-hover:bg-orange-300 transition-colors">
+                  <Calendar className="w-4 h-4 text-orange-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-orange-700">{stats.scheduled}</div>
             </div>
-            <div className="bg-violet-50 rounded-lg px-4 py-3 border border-violet-200">
-              <div className="text-sm text-violet-600">Publié</div>
-              <div className="text-2xl font-bold text-violet-700">{stats.published}</div>
+
+            <div className="bg-gradient-to-br from-violet-50 to-violet-100 rounded-xl shadow-sm px-4 py-4 border border-violet-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-violet-600">Publié</div>
+                <div className="w-8 h-8 rounded-lg bg-violet-200 flex items-center justify-center group-hover:bg-violet-300 transition-colors">
+                  <Upload className="w-4 h-4 text-violet-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-violet-700">{stats.published}</div>
             </div>
-            <div className="bg-teal-50 rounded-lg px-4 py-3 border border-teal-200">
-              <div className="text-sm text-teal-600">Vendus</div>
-              <div className="text-2xl font-bold text-teal-700">{stats.sold}</div>
+
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl shadow-sm px-4 py-4 border border-teal-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-teal-600">Vendus</div>
+                <div className="w-8 h-8 rounded-lg bg-teal-200 flex items-center justify-center group-hover:bg-teal-300 transition-colors">
+                  <ShoppingBag className="w-4 h-4 text-teal-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-teal-700">{stats.sold}</div>
               <div className="text-xs text-teal-600">{stats.soldArticles} articles · {stats.soldLots} lots</div>
             </div>
-            <div className="bg-emerald-50 rounded-lg px-4 py-3 border border-emerald-200">
-              <div className="text-sm text-emerald-600">Bénéfices</div>
-              <div className="text-2xl font-bold text-emerald-700">{stats.netProfit.toFixed(2)}€</div>
+
+            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl shadow-sm px-4 py-4 border border-emerald-200 hover:shadow-md transition-all cursor-pointer group">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium text-emerald-600">Bénéfices</div>
+                <div className="w-8 h-8 rounded-lg bg-emerald-200 flex items-center justify-center group-hover:bg-emerald-300 transition-colors">
+                  <Sparkles className="w-4 h-4 text-emerald-600" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-emerald-700">{stats.netProfit.toFixed(2)}€</div>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border mb-4">
-          <div className="p-4 border-b">
+          <div className="p-4 border-b space-y-4">
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setFiltersOpen(!filtersOpen)}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                >
-                  <Search className="w-4 h-4" />
-                  Filtres
-                  <ChevronDown className={`w-4 h-4 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
-                </button>
-                <div className="text-sm text-gray-600">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <input
+                    type="text"
+                    value={filters.search}
+                    onChange={(e) => {
+                      setFilters({ ...filters, search: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                    placeholder="Rechercher par titre, marque, référence..."
+                    className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  />
+                  {filters.search && (
+                    <button
+                      onClick={() => setFilters({ ...filters, search: '' })}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
+                  <Sparkles className="w-4 h-4" />
                   {filteredItems.length} résultat{filteredItems.length > 1 ? 's' : ''}
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+                    title="Vue grille"
+                  >
+                    <LayoutGrid className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm' : 'hover:bg-gray-200'}`}
+                    title="Vue liste"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+
                 <button
                   onClick={() => {
                     setEditItemId(undefined);
                     setArticleFormOpen(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all hover:shadow-md"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   Nouvel article
@@ -1072,7 +1157,7 @@ export default function AdminUnifiedGridPage() {
                     setEditItemId(undefined);
                     setLotBuilderOpen(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-all hover:shadow-md"
                 >
                   <Package className="w-4 h-4" />
                   Nouveau lot
@@ -1080,90 +1165,76 @@ export default function AdminUnifiedGridPage() {
               </div>
             </div>
 
-            {filtersOpen && (
-              <div className="grid grid-cols-5 gap-3 mt-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                  <select
-                    value={filters.type}
-                    onChange={(e) => {
-                      setFilters({ ...filters, type: e.target.value });
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  >
-                    <option value="">Tous</option>
-                    <option value="article">Articles</option>
-                    <option value="lot">Lots</option>
-                  </select>
-                </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {(filters.type || filters.status || filters.seller || filters.season) && (
+                <button
+                  onClick={() => {
+                    setFilters({ type: '', status: '', seller: '', season: '', search: filters.search });
+                    setCurrentPage(1);
+                  }}
+                  className="text-xs text-gray-500 hover:text-gray-700 underline"
+                >
+                  Réinitialiser les filtres
+                </button>
+              )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
-                  <select
-                    value={filters.status}
-                    onChange={(e) => {
-                      setFilters({ ...filters, status: e.target.value });
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  >
-                    <option value="">Tous</option>
-                    {STATUS_OPTIONS.map(status => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
-                </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <select
+                  value={filters.type}
+                  onChange={(e) => {
+                    setFilters({ ...filters, type: e.target.value });
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 border border-gray-300 rounded-full text-xs font-medium hover:border-gray-400 focus:ring-2 focus:ring-blue-500 transition-all bg-white"
+                >
+                  <option value="">Type: Tous</option>
+                  <option value="article">Articles</option>
+                  <option value="lot">Lots</option>
+                </select>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Vendeur</label>
-                  <select
-                    value={filters.seller}
-                    onChange={(e) => {
-                      setFilters({ ...filters, seller: e.target.value });
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  >
-                    <option value="">Tous</option>
-                    {sellers.map(seller => (
-                      <option key={seller.id} value={seller.id}>{seller.name}</option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={filters.status}
+                  onChange={(e) => {
+                    setFilters({ ...filters, status: e.target.value });
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 border border-gray-300 rounded-full text-xs font-medium hover:border-gray-400 focus:ring-2 focus:ring-blue-500 transition-all bg-white"
+                >
+                  <option value="">Statut: Tous</option>
+                  {STATUS_OPTIONS.map(status => (
+                    <option key={status} value={status}>{status}</option>
+                  ))}
+                </select>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Saison</label>
-                  <select
-                    value={filters.season}
-                    onChange={(e) => {
-                      setFilters({ ...filters, season: e.target.value });
-                      setCurrentPage(1);
-                    }}
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  >
-                    <option value="">Toutes</option>
-                    {SEASON_OPTIONS.map(season => (
-                      <option key={season} value={season}>{season}</option>
-                    ))}
-                  </select>
-                </div>
+                <select
+                  value={filters.seller}
+                  onChange={(e) => {
+                    setFilters({ ...filters, seller: e.target.value });
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 border border-gray-300 rounded-full text-xs font-medium hover:border-gray-400 focus:ring-2 focus:ring-blue-500 transition-all bg-white"
+                >
+                  <option value="">Vendeur: Tous</option>
+                  {sellers.map(seller => (
+                    <option key={seller.id} value={seller.id}>{seller.name}</option>
+                  ))}
+                </select>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Recherche</label>
-                  <input
-                    type="text"
-                    value={filters.search}
-                    onChange={(e) => {
-                      setFilters({ ...filters, search: e.target.value });
-                      setCurrentPage(1);
-                    }}
-                    placeholder="Titre, marque, réf..."
-                    className="w-full px-3 py-2 border rounded-lg text-sm"
-                  />
-                </div>
+                <select
+                  value={filters.season}
+                  onChange={(e) => {
+                    setFilters({ ...filters, season: e.target.value });
+                    setCurrentPage(1);
+                  }}
+                  className="px-3 py-1.5 border border-gray-300 rounded-full text-xs font-medium hover:border-gray-400 focus:ring-2 focus:ring-blue-500 transition-all bg-white"
+                >
+                  <option value="">Saison: Toutes</option>
+                  {SEASON_OPTIONS.map(season => (
+                    <option key={season} value={season}>{season}</option>
+                  ))}
+                </select>
               </div>
-            )}
+            </div>
           </div>
 
           {selectedItems.size > 0 && (
@@ -1180,8 +1251,239 @@ export default function AdminUnifiedGridPage() {
             />
           )}
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          {viewMode === 'grid' ? (
+            <div className="p-4">
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : paginatedItems.length === 0 ? (
+                <div className="text-center py-12">
+                  <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 text-lg">Aucun élément trouvé</p>
+                  <p className="text-gray-400 text-sm mt-1">Ajustez vos filtres ou créez un nouvel article</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {paginatedItems.map((item) => {
+                    const isSelected = selectedItems.has(item.id);
+                    const thumbnailUrl = getThumbnailUrl(item.photos);
+
+                    return (
+                      <div
+                        key={item.id}
+                        className={`group relative bg-white rounded-lg border-2 transition-all duration-200 hover:shadow-lg ${
+                          isSelected ? 'border-blue-500 shadow-md' : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="absolute top-3 left-3 z-10">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={(e) => handleSelectItem(item.id, e.target.checked)}
+                            className="w-5 h-5 rounded border-2 border-white shadow-lg cursor-pointer"
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => handleViewDetails(item)}
+                        >
+                          <div className="relative h-48 bg-gray-100 rounded-t-lg overflow-hidden">
+                            {thumbnailUrl ? (
+                              <LazyImage
+                                src={thumbnailUrl}
+                                alt={item.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                fallback={
+                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                    {item.type === 'article' ? (
+                                      <ShoppingBag className="w-12 h-12 text-gray-400" />
+                                    ) : (
+                                      <Package className="w-12 h-12 text-gray-400" />
+                                    )}
+                                  </div>
+                                }
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">
+                                {item.type === 'article' ? (
+                                  <ShoppingBag className="w-12 h-12 text-gray-400" />
+                                ) : (
+                                  <Package className="w-12 h-12 text-gray-400" />
+                                )}
+                              </div>
+                            )}
+
+                            <div className="absolute top-3 right-3 flex gap-2">
+                              <span className={`px-2 py-1 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm ${
+                                item.type === 'article'
+                                  ? 'bg-blue-500/90 text-white'
+                                  : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                              }`}>
+                                {item.type === 'article' ? 'Article' : 'Lot'}
+                              </span>
+                            </div>
+
+                            <div className="absolute bottom-3 left-3 right-3">
+                              <ArticleIndicators
+                                title={item.title}
+                                photos={item.photos}
+                                brand={item.brand}
+                                size={item.size}
+                                price={item.price}
+                                status={item.status}
+                                compact={true}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="p-4">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <h3 className="font-semibold text-gray-900 line-clamp-2 flex-1">
+                                {item.title}
+                              </h3>
+                              {getStatusBadge(item.status)}
+                            </div>
+
+                            <div className="space-y-2 text-sm text-gray-600">
+                              {item.brand && (
+                                <div className="flex items-center gap-2">
+                                  <Tag className="w-3.5 h-3.5 text-gray-400" />
+                                  <span className="truncate">{item.brand}</span>
+                                </div>
+                              )}
+
+                              {item.size && (
+                                <div className="flex items-center gap-2">
+                                  <span className="text-gray-400 text-xs">Taille:</span>
+                                  <span className="font-medium">{item.size}</span>
+                                </div>
+                              )}
+
+                              {item.seller_id && (
+                                <div className="flex items-center gap-2">
+                                  <User className="w-3.5 h-3.5 text-gray-400" />
+                                  <span className="truncate">{getSeller(item.seller_id)}</span>
+                                </div>
+                              )}
+
+                              {item.reference_number && (
+                                <div className="text-xs text-gray-500">
+                                  Réf: {item.reference_number}
+                                </div>
+                              )}
+
+                              {item.type === 'lot' && item.article_count !== undefined && (
+                                <div className="flex items-center gap-2 text-purple-600">
+                                  <Package className="w-3.5 h-3.5" />
+                                  <span className="font-medium">{item.article_count} article{item.article_count > 1 ? 's' : ''}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="mt-3 pt-3 border-t flex items-center justify-between">
+                              <div className="text-xl font-bold text-gray-900">
+                                {item.price ? `${item.price}€` : '-'}
+                              </div>
+
+                              {item.scheduled_for && (
+                                <div className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded">
+                                  <Clock className="w-3 h-3" />
+                                  {formatDate(item.scheduled_for)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-white via-white to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetails(item);
+                              }}
+                              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                              title="Voir détails"
+                            >
+                              <Eye className="w-4 h-4 text-gray-700" />
+                            </button>
+
+                            {item.type === 'article' ? (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditItemId(item.id);
+                                  setArticleFormOpen(true);
+                                }}
+                                className="p-2 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
+                                title="Éditer"
+                              >
+                                <SquarePen className="w-4 h-4 text-blue-700" />
+                              </button>
+                            ) : (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditItemId(item.id);
+                                  setLotBuilderOpen(true);
+                                }}
+                                className="p-2 bg-purple-100 hover:bg-purple-200 rounded-lg transition-colors"
+                                title="Éditer"
+                              >
+                                <SquarePen className="w-4 h-4 text-purple-700" />
+                              </button>
+                            )}
+
+                            {canPublish(item) && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePublish(item);
+                                }}
+                                className="p-2 bg-green-100 hover:bg-green-200 rounded-lg transition-colors"
+                                title="Publier sur Vinted"
+                              >
+                                <Upload className="w-4 h-4 text-green-700" />
+                              </button>
+                            )}
+
+                            {item.vinted_url && (
+                              <a
+                                href={item.vinted_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className="p-2 bg-emerald-100 hover:bg-emerald-200 rounded-lg transition-colors"
+                                title="Voir sur Vinted"
+                              >
+                                <ExternalLink className="w-4 h-4 text-emerald-700" />
+                              </a>
+                            )}
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteConfirm({ id: item.id, title: item.title, type: item.type });
+                              }}
+                              className="p-2 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-700" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b">
                 <tr>
                   <th className="px-4 py-3 text-left w-12">
@@ -1632,33 +1934,88 @@ export default function AdminUnifiedGridPage() {
                 )}
               </tbody>
             </table>
-          </div>
+            </div>
+          )}
 
-          <div className="px-4 py-3 border-t flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              {filteredItems.length > 0 && (
-                <>
-                  {(currentPage - 1) * ITEMS_PER_PAGE + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)} sur {filteredItems.length}
-                </>
+          <div className="px-6 py-4 border-t bg-gray-50 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="text-sm text-gray-600 font-medium">
+                {filteredItems.length > 0 ? (
+                  <>
+                    Affichage de <span className="text-gray-900 font-semibold">{(currentPage - 1) * ITEMS_PER_PAGE + 1}</span> à{' '}
+                    <span className="text-gray-900 font-semibold">{Math.min(currentPage * ITEMS_PER_PAGE, filteredItems.length)}</span> sur{' '}
+                    <span className="text-gray-900 font-semibold">{filteredItems.length}</span> élément{filteredItems.length > 1 ? 's' : ''}
+                  </>
+                ) : (
+                  <span>Aucun élément</span>
+                )}
+              </div>
+
+              {selectedItems.size > 0 && (
+                <div className="text-sm text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full font-medium">
+                  {selectedItems.size} sélectionné{selectedItems.size > 1 ? 's' : ''}
+                </div>
               )}
             </div>
+
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Premier
+              </button>
               <button
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-gray-700 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-5 h-5" />
               </button>
-              <span className="text-sm">
-                Page {currentPage} / {totalPages}
-              </span>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+
+                  return (
+                    <button
+                      key={pageNum}
+                      onClick={() => setCurrentPage(pageNum)}
+                      className={`min-w-[36px] h-9 px-3 rounded-lg text-sm font-medium transition-all ${
+                        currentPage === pageNum
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  );
+                })}
+              </div>
+
               <button
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
-                className="p-2 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 text-gray-700 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                <ChevronRight className="w-4 h-4" />
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Dernier
               </button>
             </div>
           </div>
